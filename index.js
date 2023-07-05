@@ -1,10 +1,7 @@
 const app = require("express")();
 
 require("./setup/dbConnection")();
-
-app.get("/", (req, res) => {
-  res.send("test");
-});
+require("./setup/routes")(app);
 
 const PORT = process.env.PORT || 3000;
 app.listen(3000, () => {
