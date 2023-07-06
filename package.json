@@ -4,7 +4,9 @@
     "description": "REST API for web game store",
     "main": "index.js",
     "scripts": {
-        "test": "jest --runInBand --verbose --forceExit",
+        "test:unit": "jest tests/unit --verbose",
+        "test:integration": "jest tests/integration --maxWorkers=1 --verbose --forceExit",
+        "tests": "jest --maxWorkers=1 --verbose --forceExit",
         "lint": "eslint .",
         "lint:fix": "eslint --fix ."
     },
