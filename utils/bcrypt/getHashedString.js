@@ -1,9 +1,19 @@
 const bcrypt = require("bcrypt");
+const winston = require("winston");
 
 async function getHashedString(string) {
-  const salt = await bcrypt.genSalt(10);
-  const hashedString = await bcrypt.hash(string, salt);
-  return hashedString;
+  if (!string) {
+    return null;
+  }
+
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedString = await bcrypt.hash(string, salt);
+
+    return hashedString;
+  } catch (err) {
+    winston.error(err.message, err);
+  }
 }
 
 module.exports = getHashedString;
