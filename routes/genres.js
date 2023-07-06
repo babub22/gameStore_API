@@ -2,6 +2,9 @@ const router = require("express").Router();
 const { Genre } = require("../models/genre");
 const objectIdValidator = require("../utils/validators/objectIdValidator");
 const validateRequestBody = require("../middleware/validateRequestBody");
+const auth = require("../middleware/auth");
+const admin = require("../middleware/admin");
+const genreValidator = require("../utils/validators/genre/genreValidator");
 
 router.get("/", async (req, res) => {
   const genres = await Genre.find();
@@ -19,5 +22,17 @@ router.get("/:id", validateRequestBody(objectIdValidator), async (req, res) => {
 
   res.send(genres);
 });
+
+router.post(
+  "/",
+  [auth, admin, validateRequestBody(genreValidator)],
+  async (req, res) => {
+    const newGenre = new Genre(req.body);
+
+    await newGenre.save();
+
+    res.send(newGenre);
+  }
+);
 
 module.exports = router;
