@@ -2,6 +2,8 @@ const { default: mongoose } = require("mongoose");
 const app = require("../../../index");
 const request = require("supertest")(app);
 const { Genre } = require("../../../models/genre");
+const getUserToken = require("../../utils/getUserToken");
+const getAdminToken = require("../../utils/getAdminToken");
 
 const route = "/api/genres/";
 
@@ -72,6 +74,53 @@ describe(route, () => {
         const res = await exec(genreId);
 
         expect(res.body._id === genreId).toBe(true);
+      });
+    });
+  });
+
+  describe("POST", () => {
+    const validNewGenre = { name: "newGenre" };
+    const exec = (newGenre, token) =>
+      request.post(route).set("x-auth-token", token).send(newGenre);
+
+    describe("/", () => {
+      test("if no auth token, it will return 401", async () => {
+        const res = await request.post(route).send(validNewGenre);
+
+        expect(res.status).toBe(401);
+      });
+      test("if auth token invalid, it will return 400", async () => {
+        const res = await exec(validNewGenre, "1234");
+
+        expect(res.status).toBe(400);
+      });
+      test("if user is not admin, it will return 403", async () => {
+        const { token: userToken } = getUserToken();
+        const res = await exec(validNewGenre, userToken);
+
+        expect(res.status).toBe(403);
+      });
+      test("if request data invalid, it will return 400", async () => {
+        const { token: userToken } = getUserToken();
+        const res = await exec({ name: "a" }, userToken);
+
+        expect(res.status).toBe(403);
+      });
+
+      const { token: adminToken } = getAdminToken();
+
+      test("if request data valid, it will return 200", async () => {
+        const res = await exec(validNewGenre, adminToken);
+
+        expect(res.status).toBe(200);
+      });
+
+      test("if document was created", async () => {
+        const res = await exec(validNewGenre, adminToken);
+
+        const genreInDB = await Genre.findOne(validNewGenre);
+
+        expect(res.body._id).toBe(genreInDB._id.toHexString());
       });
     });
   });
