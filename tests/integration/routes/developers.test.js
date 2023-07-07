@@ -2,18 +2,7 @@ const app = require("../../../index");
 const request = require("supertest")(app);
 const { Developer } = require("../../../models/developer");
 const getAdminToken = require("../../utils/getAdminToken");
-
-async function createNewDevelover() {
-  const newDeveloper = new Developer({
-    name: "genre1",
-  });
-
-  await newDeveloper.save();
-
-  const developerId = newDeveloper._id.toHexString();
-
-  return { developerId, newDeveloper };
-}
+const createNewDevelover = require("./utils/createNewDevelover");
 
 const route = "/api/developers";
 
