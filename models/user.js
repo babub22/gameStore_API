@@ -4,24 +4,24 @@ const config = require("config");
 
 const userSchema = new mongoose.Schema({
   username: {
-    type: "String",
+    type: String,
     required: true,
     minlength: 3,
     trim: true,
   },
   email: {
-    type: "String",
+    type: String,
     required: true,
     unique: true,
     trim: true,
   },
   password: {
-    type: "String",
+    type: String,
     required: true,
     minlength: 3,
   },
   role: {
-    type: "String",
+    type: String,
     enum: ["User", "Admin"],
   },
   isReviewer: Boolean,
