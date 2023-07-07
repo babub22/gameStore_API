@@ -4,20 +4,9 @@ const request = require("supertest")(app);
 const { Genre } = require("../../../models/genre");
 const getUserToken = require("../../utils/getUserToken");
 const getAdminToken = require("../../utils/getAdminToken");
+const createNewGenre = require("./utils/createNewGenre");
 
 const route = "/api/genres/";
-
-async function createNewGenre() {
-  const newGenre = new Genre({
-    name: "genre1",
-  });
-
-  await newGenre.save();
-
-  const genreId = newGenre._id.toHexString();
-
-  return { genreId, newGenre };
-}
 
 describe(route, () => {
   afterEach(async () => {
