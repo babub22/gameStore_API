@@ -4,6 +4,8 @@ const registrationDataValidator = require("../utils/validators/user/registration
 const { User } = require("../models/user");
 const getHashedString = require("../utils/bcrypt/getHashedString");
 const { pick } = require("lodash");
+const loginDataValidator = require("../utils/validators/user/loginDataValidator");
+const compareHashedStrings = require("../utils/bcrypt/compareHashedStrings");
 
 const router = express.Router();
 
@@ -32,6 +34,30 @@ router.post(
     res
       .header("x-auth-token", token)
       .send(pick(newUser, ["_id", "username", "email"]));
+  }
+);
+
+router.post(
+  "/singin",
+  validateRequestBody(loginDataValidator),
+  async (req, res) => {
+    const { password, email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).send("User with this mail doesnt exist!");
+    }
+
+    const isValidPassword = await compareHashedStrings(password, user.password);
+
+    if (!isValidPassword) {
+      return res.status(404).send("Password is wrong!");
+    }
+
+    const token = await user.generateAuthToken();
+
+    res.header("x-auth-token", token).send(`Welcome ${user.username}!`);
   }
 );
 
