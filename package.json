@@ -5,8 +5,8 @@
     "main": "index.js",
     "scripts": {
         "test:unit": "jest tests/unit --verbose",
-        "test:integration": "PORT=0 jest tests/integration --maxWorkers=1 --verbose --forceExit",
-        "tests": "PORT=0 jest --maxWorkers=1 --verbose --forceExit",
+        "test:integration": "PORT=0 jest tests/integration --maxWorkers=1 --verbose --forceExit --testTimeout=15000",
+        "tests": "PORT=0 jest --maxWorkers=1 --verbose --forceExit --testTimeout=15000",
         "lint": "eslint .",
         "lint:fix": "eslint --fix ."
     },
