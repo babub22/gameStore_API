@@ -1,4 +1,4 @@
-const { default: mongoose } = require("mongoose");
+const mongoose = require("mongoose");
 const app = require("../../../index");
 const request = require("supertest")(app);
 const { Genre } = require("../../../models/genre");
@@ -8,7 +8,7 @@ const getAdminToken = require("../../utils/getAdminToken");
 const route = "/api/genres/";
 
 async function createNewGenre() {
-  let newGenre = new Genre({
+  const newGenre = new Genre({
     name: "genre1",
   });
 
@@ -100,14 +100,13 @@ describe(route, () => {
 
         expect(res.status).toBe(403);
       });
-      test("if request data invalid, it will return 400", async () => {
-        const { token: userToken } = getUserToken();
-        const res = await exec({ name: "a" }, userToken);
-
-        expect(res.status).toBe(403);
-      });
-
       const { token: adminToken } = getAdminToken();
+
+      test("if request data invalid, it will return 400", async () => {
+        const res = await exec({ name: "a" }, adminToken);
+
+        expect(res.status).toBe(400);
+      });
 
       test("if request data valid, it will return 200", async () => {
         const res = await exec(validNewGenre, adminToken);
