@@ -119,6 +119,15 @@ describe(route, () => {
 
         expect(res.status).toBe(200);
       });
+
+      test("if document contain addedBy property", async () => {
+        const validNewGameParams = await getValidNewGameParams();
+        const res = await exec(validNewGameParams);
+
+        const decodedJWT = jwt.verify(token, config.get("jwtPrivateKey"));
+
+        expect(res.body.addedBy).toEqual(decodedJWT.username);
+      });
     });
   });
 });
