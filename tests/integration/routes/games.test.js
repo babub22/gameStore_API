@@ -7,9 +7,9 @@ const createNewGenre = require("./utils/createNewGenre");
 const createNewDevelover = require("./utils/createNewDevelover");
 const { Genre } = require("../../../models/genre");
 const { Developer } = require("../../../models/developer");
-const { stringToDate } = require("../../../utils/stringToDate");
 const getAdminToken = require("../../utils/getAdminToken");
 const mongoose = require("mongoose");
+const createNewGame = require("./utils/createNewGame");
 
 const route = "/api/games";
 
@@ -27,28 +27,6 @@ async function getValidNewGameParams() {
   };
 
   return validNewGameParams;
-}
-
-async function createNewGame() {
-  const { newDeveloper } = await createNewDevelover();
-  const { newGenre } = await createNewGenre();
-
-  const releaseDate = stringToDate("30/05/1995");
-
-  const newGame = new Game({
-    title: "Game title",
-    price: 20,
-    releaseDate,
-    description: new Array(26).join("a"),
-    genre: newGenre,
-    developer: newDeveloper,
-  });
-
-  await newGame.save();
-
-  const gameId = newGame._id.toHexString();
-
-  return { gameId, newGame };
 }
 
 describe(route, () => {
