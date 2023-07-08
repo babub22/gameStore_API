@@ -1,3 +1,5 @@
+const jwt = require("jsonwebtoken");
+const config = require("config");
 const { Game } = require("../../../models/game");
 const app = require("../../../index");
 const request = require("supertest")(app);
@@ -127,6 +129,13 @@ describe(route, () => {
         const decodedJWT = jwt.verify(token, config.get("jwtPrivateKey"));
 
         expect(res.body.addedBy).toEqual(decodedJWT.username);
+      });
+      test("if document contain creationDate property", async () => {
+        const validNewGameParams = await getValidNewGameParams();
+        const res = await exec(validNewGameParams);
+
+        const diff = new Date() - Date.parse(res.body.creationDate);
+        expect(diff).toBeLessThan(10 * 1000); // 10sec
       });
     });
   });
