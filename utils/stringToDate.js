@@ -21,4 +21,4 @@ function stringToDate(string) {
   return dateString;
 }
 
-module.exports = stringToDate;
+module.exports = { stringToDate, VALID_DATE_FORMAT };
