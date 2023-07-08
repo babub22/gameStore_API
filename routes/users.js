@@ -13,7 +13,7 @@ router.post(
   "/singup",
   validateRequestBody(registrationDataValidator),
   async (req, res) => {
-    const user = await User.findOne(pick(req.body, ["email", "username"]));
+    const user = await User.findOne(pick(req.body, ["email", "name"]));
 
     if (user) {
       return res.status(400).send("This user already exist!");
@@ -33,7 +33,7 @@ router.post(
 
     res
       .header("x-auth-token", token)
-      .send(pick(newUser, ["_id", "username", "email"]));
+      .send(pick(newUser, ["_id", "name", "email"]));
   }
 );
 
@@ -57,7 +57,7 @@ router.post(
 
     const token = await user.generateAuthToken();
 
-    res.header("x-auth-token", token).send(`Welcome ${user.username}!`);
+    res.header("x-auth-token", token).send(`Welcome ${user.name}!`);
   }
 );
 

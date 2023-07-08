@@ -128,7 +128,7 @@ describe(route, () => {
 
         const decodedJWT = jwt.verify(token, config.get("jwtPrivateKey"));
 
-        expect(res.body.addedBy).toEqual(decodedJWT.username);
+        expect(res.body.addedBy).toEqual(decodedJWT.name);
       });
       test("if document contain creationDate property", async () => {
         const validNewGameParams = await getValidNewGameParams();

@@ -9,7 +9,7 @@ describe("getUserToken", () => {
 
   test("if token payload contains the correct data", () => {
     expect(Object.keys(decoded)).toEqual(
-      expect.arrayContaining(["_id", "role", "username"])
+      expect.arrayContaining(["_id", "role", "name"])
     );
   });
 
@@ -17,7 +17,7 @@ describe("getUserToken", () => {
     expect(decoded.role).toBe("User");
   });
 
-  test("if token payload contains username Vlad", () => {
-    expect(decoded.username).toBe("Vlad");
+  test("if token payload contains name Vlad", () => {
+    expect(decoded.name).toBe("Vlad");
   });
 });

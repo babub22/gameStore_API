@@ -10,7 +10,7 @@ const request = require("supertest")(app);
 const route = "/api/users/";
 
 const validUserData = {
-  username: "newUser",
+  name: "newUser",
   email: "example@gmail.com",
   password: "1234",
 };
@@ -65,7 +65,7 @@ describe(route, () => {
         );
 
         const userInDb = await User.findOne(
-          pick(validUserData, ["username", "email"])
+          pick(validUserData, ["name", "email"])
         );
 
         expect(decodedJWT._id).toBe(userInDb._id.toHexString());

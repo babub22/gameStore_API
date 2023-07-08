@@ -6,7 +6,7 @@ function getUserToken() {
 
   const token = new User({
     _id: objectId,
-    username: "Vlad",
+    name: "Vlad",
     role: "User",
   }).generateAuthToken();
 

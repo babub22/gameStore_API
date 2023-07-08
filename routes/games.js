@@ -42,7 +42,7 @@ route.post(
 
     const gameProperties = pick(req.body, ["title", "price", "decription"]);
 
-    const addedBy = req?.user?.username;
+    const addedBy = req?.user?.name;
 
     const newGame = new Game({
       ...gameProperties,

@@ -6,7 +6,7 @@ function getAdminToken() {
 
   const token = new User({
     _id: objectId,
-    username: "Vlad",
+    name: "Vlad",
     role: "Admin",
   }).generateAuthToken();
 
