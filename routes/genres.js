@@ -5,23 +5,28 @@ const validateRequestBody = require("../middleware/validateRequestBody");
 const auth = require("../middleware/auth");
 const admin = require("../middleware/admin");
 const genreValidator = require("../utils/validators/genre/genreValidator");
+const validateRequestParams = require("../middleware/validateRequestParams");
 
 router.get("/", async (req, res) => {
   const genres = await Genre.find();
   res.send(genres);
 });
 
-router.get("/:id", validateRequestBody(objectIdValidator), async (req, res) => {
-  const { objectId } = req.body;
+router.get(
+  "/:objectId",
+  validateRequestParams(objectIdValidator),
+  async (req, res) => {
+    const { objectId: genreId } = req.params;
 
-  const genres = await Genre.findById(objectId);
+    const genres = await Genre.findById(genreId);
 
-  if (!genres) {
-    return res.status(404).send("Genre with the specified ID was not found!");
+    if (!genres) {
+      return res.status(404).send("Genre with the specified ID was not found!");
+    }
+
+    res.send(genres);
   }
-
-  res.send(genres);
-});
+);
 
 router.post(
   "/",
