@@ -42,11 +42,14 @@ route.post(
 
     const gameProperties = pick(req.body, ["title", "price", "decription"]);
 
+    const addedBy = req?.user?.username;
+
     const newGame = new Game({
       ...gameProperties,
       developer,
       genre,
       gameReleaseDate: date,
+      addedBy,
     });
 
     await newGame.save();
