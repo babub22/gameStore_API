@@ -8,6 +8,7 @@ function getAdminToken() {
     _id: objectId,
     name: "Vlad",
     role: "Admin",
+    isReviewer: false,
   }).generateAuthToken();
 
   return { token, objectId: objectId.toHexString() };
