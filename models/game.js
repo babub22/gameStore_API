@@ -19,7 +19,7 @@ const gameSchema = new mongoose.Schema({
     type: Date,
     require: true,
   },
-  decription: {
+  description: {
     type: String,
     minlength: 25,
     require: true,
