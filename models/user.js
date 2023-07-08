@@ -24,7 +24,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ["User", "Admin"],
   },
-  isReviewer: Boolean,
+  isReviewer: {
+    type: Boolean,
+    default: false,
+    require: true,
+  },
 });
 
 userSchema.methods.generateAuthToken = function () {
