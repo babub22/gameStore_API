@@ -18,7 +18,7 @@ route.post(
   "/",
   [auth, admin, validateRequestBody(gameValidator)],
   async (req, res) => {
-    const { developerId, genreId, gameReleaseDate } = req.body;
+    const { developerId, genreId, releaseDate } = req.body;
 
     const developer = await Developer.findById(developerId);
 
@@ -34,7 +34,7 @@ route.post(
       return res.status(404).send("This genre does not exist in the database!");
     }
 
-    const date = stringToDate(gameReleaseDate);
+    const date = stringToDate(releaseDate);
 
     if (!date) {
       return res.status(400).send("Provided date is not valid!");
@@ -48,7 +48,7 @@ route.post(
       ...gameProperties,
       developer,
       genre,
-      gameReleaseDate: date,
+      releaseDate: date,
       addedBy,
     });
 

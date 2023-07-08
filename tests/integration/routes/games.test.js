@@ -20,7 +20,7 @@ async function getValidNewGameParams() {
   const validNewGameParams = {
     title: "Game title",
     price: 20,
-    gameReleaseDate: "30/05/1995",
+    releaseDate: "30/05/1995",
     description: new Array(26).join("a"),
     developerId,
     genreId,
@@ -33,12 +33,12 @@ async function createNewGame() {
   const { newDeveloper } = await createNewDevelover();
   const { newGenre } = await createNewGenre();
 
-  const gameReleaseDate = stringToDate("30/05/1995");
+  const releaseDate = stringToDate("30/05/1995");
 
   const newGame = new Game({
     title: "Game title",
     price: 20,
-    gameReleaseDate,
+    releaseDate,
     description: new Array(26).join("a"),
     genre: newGenre,
     developer: newDeveloper,
@@ -109,7 +109,7 @@ describe(route, () => {
         const validNewGameParams = await getValidNewGameParams();
         const res = await exec({
           ...validNewGameParams,
-          gameReleaseDate: "29 05 1995",
+          releaseDate: "29 05 1995",
         });
 
         expect(res.status).toBe(400);
