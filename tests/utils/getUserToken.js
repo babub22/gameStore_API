@@ -8,6 +8,7 @@ function getUserToken() {
     _id: objectId,
     name: "Vlad",
     role: "User",
+    isReviewer: false,
   }).generateAuthToken();
 
   return { token, objectId: objectId.toHexString() };
