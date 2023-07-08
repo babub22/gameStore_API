@@ -1,4 +1,4 @@
-const stringToDate = require("../../../utils/stringToDate");
+const { stringToDate } = require("../../../utils/stringToDate");
 
 describe("stringToDate", () => {
   test("if provided string is invalid, it will return null", () => {
