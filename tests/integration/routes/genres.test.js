@@ -32,9 +32,8 @@ describe(route, () => {
       });
     });
 
-    describe("/:id", () => {
-      const exec = (objectId) =>
-        request.get(route + objectId).send({ objectId });
+    describe("/:genreId", () => {
+      const exec = (genreId) => request.get(route + genreId);
 
       test("if objectId is invalid return 400", async () => {
         const res = await exec("1234");
