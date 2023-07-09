@@ -14,4 +14,15 @@ router.get(
   }
 );
 
+router.get(
+  "/author/:objectId",
+  validateRequestParams(objectIdValidator),
+  async (req, res) => {
+    const { objectId: authorId } = req.params;
+
+    const reviews = await Review.getReviewsByAuthorId(authorId);
+    res.send(reviews);
+  }
+);
+
 module.exports = router;
