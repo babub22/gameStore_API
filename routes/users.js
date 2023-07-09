@@ -3,7 +3,7 @@ const validateRequestBody = require("../middleware/validateRequestBody");
 const registrationDataValidator = require("../utils/validators/user/registrationDataValidator");
 const { User } = require("../models/user");
 const getHashedString = require("../utils/bcrypt/getHashedString");
-const { pick } = require("lodash");
+const { pick, omit } = require("lodash");
 const loginDataValidator = require("../utils/validators/user/loginDataValidator");
 const compareHashedStrings = require("../utils/bcrypt/compareHashedStrings");
 
@@ -13,7 +13,7 @@ router.post(
   "/singup",
   validateRequestBody(registrationDataValidator),
   async (req, res) => {
-    const user = await User.findOne(pick(req.body, ["email", "name"]));
+    const user = await User.findOne(omit(req.body, ["password"]));
 
     if (user) {
       return res.status(400).send("This user already exist!");
