@@ -11,26 +11,6 @@ const { Developer } = require("../../../models/developer");
 
 const route = "/api/reviews/";
 
-async function createNewReview(token) {
-  const { newGame } = await createNewGame();
-  const user = jwt.verify(token, config.get("jwtPrivateKey"));
-
-  const obj = newGame.toObject();
-
-  const newReview = new Review({
-    game: obj,
-    author: user,
-    text: new Array(15).join("a"),
-    gameScore: 7,
-  });
-
-  await newReview.save();
-
-  const reviewId = newReview._id.toHexString();
-
-  return { reviewId, newReview };
-}
-
 describe(route, () => {
   afterEach(async () => {
     await Review.deleteMany({});
