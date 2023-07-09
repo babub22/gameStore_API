@@ -9,7 +9,7 @@ describe("getAdminToken", () => {
 
   test("if token payload contains the correct data", () => {
     expect(Object.keys(decoded)).toEqual(
-      expect.arrayContaining(["_id", "role", "name"])
+      expect.arrayContaining(["_id", "role", "name", "isReviewer"])
     );
   });
 
