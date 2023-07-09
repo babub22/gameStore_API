@@ -8,6 +8,10 @@ const getAdminToken = require("../../utils/getAdminToken");
 const { Game } = require("../../../models/game");
 const { Genre } = require("../../../models/genre");
 const { Developer } = require("../../../models/developer");
+const getUserToken = require("../../utils/getUserToken");
+const createNewReview = require("./utils/createNewReview");
+const mongoose = require("mongoose");
+const { omit } = require("lodash");
 
 const route = "/api/reviews/";
 
@@ -64,4 +68,59 @@ describe(route, () => {
       });
     });
   });
+
+  describe("POST", () => {
+    const { token } = getUserToken();
+    const exec = (newReview) =>
+      request.post(route).set("x-auth-token", token).send(newReview);
+
+    describe("/", () => {
+      test("if game for provided gameId does not exist, it will return 404", async () => {
+        const validReqBody = await getValidPOSTReqBody(token);
+        const res = await exec({
+          ...validReqBody,
+          gameId: new mongoose.Types.ObjectId(),
+        });
+
+        expect(res.status).toBe(404);
+      });
+
+      test("if valid request, it will return 200", async () => {
+        const validReqBody = await getValidPOSTReqBody(token);
+        const res = await exec(validReqBody);
+
+        expect(res.status).toBe(200);
+      });
+
+      test("if document contain author property", async () => {
+        const validNewGameParams = await getValidPOSTReqBody();
+        const res = await exec(validNewGameParams);
+
+        const decodedJWT = jwt.verify(token, config.get("jwtPrivateKey"));
+        const userProps = omit(decodedJWT, ["iat", "role"]);
+
+        expect(res.body.author).toEqual(userProps);
+      });
+
+      test("if document contain creationDate property", async () => {
+        const validNewGameParams = await getValidPOSTReqBody();
+        const res = await exec(validNewGameParams);
+
+        const diff = new Date() - Date.parse(res.body.creationDate);
+        expect(diff).toBeLessThan(15 * 1000); // 15sec
+      });
+    });
+  });
 });
+
+async function getValidPOSTReqBody() {
+  const { gameId } = await createNewGame();
+
+  const validReqBody = {
+    gameId,
+    text: new Array(15).join("a"),
+    gameScore: 7,
+  };
+
+  return validReqBody;
+}
