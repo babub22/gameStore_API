@@ -42,8 +42,8 @@ describe(route, () => {
   const { token } = getAdminToken();
 
   describe("GET", () => {
-    describe("/:gameId", () => {
-      const exec = (gameId) => request.get(route + gameId);
+    describe("/game/:gameId", () => {
+      const exec = (gameId) => request.get(route + "game/" + gameId);
 
       test("if valid request, it will return 200", async () => {
         const { newReview } = await createNewReview(token);

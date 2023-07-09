@@ -4,7 +4,7 @@ const router = require("express").Router();
 const validateRequestParams = require("../middleware/validateRequestParams");
 
 router.get(
-  "/:objectId",
+  "/game/:objectId",
   validateRequestParams(objectIdValidator),
   async (req, res) => {
     const { objectId: gameId } = req.params;
