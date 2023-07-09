@@ -43,9 +43,14 @@ const reviewSchema = new mongoose.Schema({
 });
 
 reviewSchema.statics.getReviewsByGameId = function (gameId) {
-  // this - refer to Rental
   return this.find({
     "game._id": gameId,
+  });
+};
+
+reviewSchema.statics.getReviewsByAuthorId = function (gameId) {
+  return this.find({
+    "author._id": gameId,
   });
 };
 
