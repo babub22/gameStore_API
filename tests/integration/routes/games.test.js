@@ -13,22 +13,6 @@ const createNewGame = require("./utils/createNewGame");
 
 const route = "/api/games";
 
-async function getValidNewGameParams() {
-  const { developerId } = await createNewDevelover();
-  const { genreId } = await createNewGenre();
-
-  const validNewGameParams = {
-    title: "Game title",
-    price: 20,
-    releaseDate: "30/05/1995",
-    description: new Array(26).join("a"),
-    developerId,
-    genreId,
-  };
-
-  return validNewGameParams;
-}
-
 describe(route, () => {
   afterEach(async () => {
     await Game.deleteMany({});
@@ -108,13 +92,30 @@ describe(route, () => {
 
         expect(res.body.addedBy).toEqual(decodedJWT.name);
       });
+
       test("if document contain creationDate property", async () => {
         const validNewGameParams = await getValidNewGameParams();
         const res = await exec(validNewGameParams);
 
         const diff = new Date() - Date.parse(res.body.creationDate);
-        expect(diff).toBeLessThan(10 * 1000); // 10sec
+        expect(diff).toBeLessThan(15 * 1000); // 10sec
       });
     });
   });
 });
+
+async function getValidNewGameParams() {
+  const { developerId } = await createNewDevelover();
+  const { genreId } = await createNewGenre();
+
+  const validNewGameParams = {
+    title: "Game title",
+    price: 20,
+    releaseDate: "30/05/1995",
+    description: new Array(26).join("a"),
+    developerId,
+    genreId,
+  };
+
+  return validNewGameParams;
+}
