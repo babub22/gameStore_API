@@ -62,5 +62,26 @@ describe(route, () => {
         expect(res.body.some((review) => review._id === reviewId)).toBe(true);
       });
     });
+
+    describe("/author/:authorId", () => {
+      const exec = (authorId) => request.get(route + "author/" + authorId);
+
+      test("if valid request, it will return 200", async () => {
+        const { newReview } = await createNewReview(token);
+        const authorId = newReview.author._id;
+        const res = await exec(authorId);
+
+        expect(res.status).toBe(200);
+      });
+
+      test("if returned array of documents contain created review", async () => {
+        const { reviewId, newReview } = await createNewReview(token);
+
+        const authorId = newReview.author._id;
+        const res = await exec(authorId);
+
+        expect(res.body.some((review) => review._id === reviewId)).toBe(true);
+      });
+    });
   });
 });
