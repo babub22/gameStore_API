@@ -3,28 +3,11 @@ const config = require("config");
 
 const { User } = require("../../../models/user");
 const app = require("../../../index");
-const { pick } = require("lodash");
+const { omit } = require("lodash");
 const getHashedString = require("../../../utils/bcrypt/getHashedString");
 const request = require("supertest")(app);
 
 const route = "/api/users/";
-
-const validUserData = {
-  name: "newUser",
-  email: "example@gmail.com",
-  password: "1234",
-};
-
-async function createNewUser() {
-  const hashedPassword = await getHashedString(validUserData.password);
-  const newUser = new User({ ...validUserData, password: hashedPassword });
-
-  await newUser.save();
-
-  const userId = newUser._id.toHexString();
-
-  return { userId, newUser };
-}
 
 describe(route, () => {
   afterEach(async () => {
@@ -64,9 +47,7 @@ describe(route, () => {
           config.get("jwtPrivateKey")
         );
 
-        const userInDb = await User.findOne(
-          pick(validUserData, ["name", "email"])
-        );
+        const userInDb = await User.findOne(omit(validUserData, ["password"]));
 
         expect(decodedJWT._id).toBe(userInDb._id.toHexString());
       });
@@ -116,3 +97,20 @@ describe(route, () => {
     });
   });
 });
+
+const validUserData = {
+  name: "newUser",
+  email: "example@gmail.com",
+  password: "1234",
+};
+
+async function createNewUser() {
+  const hashedPassword = await getHashedString(validUserData.password);
+  const newUser = new User({ ...validUserData, password: hashedPassword });
+
+  await newUser.save();
+
+  const userId = newUser._id.toHexString();
+
+  return { userId, newUser };
+}
