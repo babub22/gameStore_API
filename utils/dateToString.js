@@ -10,7 +10,6 @@ function dateToString(string) {
   }
 
   const dateString = moment(string).format(correctFormat);
-  console.log(dateString, "dateString");
 
   return dateString;
 }
