@@ -3,7 +3,6 @@ const winston = require("winston");
 
 require("./setup/dbConnection")();
 require("./setup/routes")(app);
-require("./setup/joiConfig")();
 require("./setup/logging")();
 
 const PORT = process.env.PORT || 3000;
