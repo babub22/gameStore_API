@@ -31,7 +31,7 @@ describe(route, () => {
       });
 
       test("if returned array of documents contain created game", async () => {
-        const { gameId } = await createNewGame();
+        const { gameId } = await createNewGame(fakeDate);
 
         const res = await exec();
 
@@ -67,7 +67,7 @@ describe(route, () => {
         expect(res.status).toBe(404);
       });
 
-      test("if wrong data format, it will return 400", async () => {
+      test("if wrong date, it will return 400", async () => {
         const validNewGameParams = await getValidNewGameParams();
         const res = await exec({
           ...validNewGameParams,
@@ -104,6 +104,8 @@ describe(route, () => {
   });
 });
 
+const fakeDate = Date.parse("1995-05-30");
+
 async function getValidNewGameParams() {
   const { developerId } = await createNewDevelover();
   const { genreId } = await createNewGenre();
@@ -111,7 +113,7 @@ async function getValidNewGameParams() {
   const validNewGameParams = {
     title: "Game title",
     price: 20,
-    releaseDate: "30/05/1995",
+    releaseDate: fakeDate,
     description: new Array(26).join("a"),
     developerId,
     genreId,
