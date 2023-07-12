@@ -1,13 +1,13 @@
 const { Game } = require("../../../../models/game");
-const { stringToDate } = require("../../../../utils/stringToDate");
+const { dateToString } = require("../../../../utils/dateToString");
 const createNewDevelover = require("./createNewDevelover");
 const createNewGenre = require("./createNewGenre");
 
-async function createNewGame() {
+async function createNewGame(date) {
   const { newDeveloper } = await createNewDevelover();
   const { newGenre } = await createNewGenre();
 
-  const releaseDate = stringToDate("30/05/1995");
+  const releaseDate = dateToString(date);
 
   const newGame = new Game({
     title: "Game title",
@@ -19,6 +19,7 @@ async function createNewGame() {
   });
 
   await newGame.save();
+
   const gameId = newGame._id.toHexString();
 
   return { gameId, newGame };
