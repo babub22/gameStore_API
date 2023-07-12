@@ -15,8 +15,8 @@ function dateToString(string) {
   return dateString;
 }
 
-const isCorrectFormat = (dateString) => {
+function isCorrectFormat(dateString) {
   return moment(dateString, correctFormat, true).isValid();
-};
+}
 
 module.exports = { dateToString, isCorrectFormat };
