@@ -6,8 +6,8 @@ const admin = require("../middleware/admin");
 const auth = require("../middleware/auth");
 const { Developer } = require("../models/developer");
 const { Genre } = require("../models/genre");
-const { stringToDate } = require("../utils/stringToDate");
 const { pick } = require("lodash");
+const { dateToString } = require("../utils/dateToString");
 
 route.get("/", async (req, res) => {
   const games = await Game.find();
@@ -34,9 +34,9 @@ route.post(
       return res.status(404).send("This genre does not exist in the database!");
     }
 
-    const date = stringToDate(releaseDate);
+    const dateString = dateToString(releaseDate);
 
-    if (!date) {
+    if (!dateString) {
       return res.status(400).send("Provided date is not valid!");
     }
 
@@ -46,7 +46,7 @@ route.post(
       ...gameInformation,
       developer,
       genre,
-      releaseDate: date,
+      releaseDate: dateString,
       addedBy: req?.user?.name,
     };
 
