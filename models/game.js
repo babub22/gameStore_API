@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const { genreSchema } = require("./genre");
 const { developerSchema } = require("./developer");
+const { isCorrectFormat } = require("../utils/dateToString");
 
 const gameSchema = new mongoose.Schema({
   title: {
@@ -16,7 +17,10 @@ const gameSchema = new mongoose.Schema({
     require: true,
   },
   releaseDate: {
-    type: Date,
+    type: String,
+    validate: {
+      validator: (dateString) => isCorrectFormat(dateString),
+    },
     require: true,
   },
   description: {
