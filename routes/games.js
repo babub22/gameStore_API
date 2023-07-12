@@ -40,21 +40,21 @@ route.post(
       return res.status(400).send("Provided date is not valid!");
     }
 
-    const gameProperties = pick(req.body, ["title", "price", "decription"]);
+    const gameInformation = pick(req.body, ["title", "price", "decription"]);
 
-    const addedBy = req?.user?.name;
-
-    const newGame = new Game({
-      ...gameProperties,
+    const newGameObject = {
+      ...gameInformation,
       developer,
       genre,
       releaseDate: date,
-      addedBy,
-    });
+      addedBy: req?.user?.name,
+    };
+
+    const newGame = new Game(newGameObject);
 
     await newGame.save();
 
-    res.send(newGame);
+    res.status(201).send(newGame);
   }
 );
 
