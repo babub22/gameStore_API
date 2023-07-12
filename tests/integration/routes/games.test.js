@@ -81,7 +81,7 @@ describe(route, () => {
         const validNewGameParams = await getValidNewGameParams();
         const res = await exec(validNewGameParams);
 
-        expect(res.status).toBe(200);
+        expect(res.status).toBe(201);
       });
 
       test("if document contain addedBy property", async () => {
