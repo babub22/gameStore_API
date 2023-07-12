@@ -1,4 +1,5 @@
 const Joi = require("joi");
+Joi.objectId = require("joi-objectid")(Joi);
 
 function objectIdValidator(body) {
   const schema = Joi.object({
