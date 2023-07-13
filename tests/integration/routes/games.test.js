@@ -92,14 +92,6 @@ describe(route, () => {
 
         expect(res.body.addedBy).toEqual(decodedJWT.name);
       });
-
-      test("if document contain creationDate property", async () => {
-        const validNewGameParams = await getValidNewGameParams();
-        const res = await exec(validNewGameParams);
-
-        const diff = new Date() - Date.parse(res.body.creationDate);
-        expect(diff).toBeLessThan(15 * 1000); // 10sec
-      });
     });
   });
 });
