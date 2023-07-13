@@ -36,10 +36,6 @@ route.post(
 
     const dateString = dateToString(releaseDate);
 
-    if (!dateString) {
-      return res.status(400).send("Provided date is not valid!");
-    }
-
     const gameInformation = pick(req.body, ["title", "price", "decription"]);
 
     const newGameObject = {
