@@ -1,6 +1,4 @@
-function getMiddlewareParams(token) {
-  const req = { header: jest.fn().mockReturnValue(token) };
-
+function getMiddlewareParams(req) {
   const next = jest.fn();
 
   const res = {};
