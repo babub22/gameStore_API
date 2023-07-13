@@ -6,7 +6,7 @@
     "scripts": {
         "test:unit": "jest tests/unit --verbose",
         "test:integration": "PORT=0 jest tests/integration --runInBand --verbose --forceExit --testTimeout=15000",
-        "tests": "PORT=0 jest --runInBand --verbose --forceExit --testTimeout=15000",
+        "tests": "PORT=0 jest --runInBand --verbose --forceExit --testTimeout=15000 --coverage",
         "lint": "eslint .",
         "lint:fix": "eslint --fix ."
     },
