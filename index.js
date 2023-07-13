@@ -5,7 +5,7 @@ require("./setup/dbConnection")();
 require("./setup/routes")(app);
 require("./setup/logging")();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 
 app.listen(PORT, () => {
   winston.info(`Running on port ${PORT}`);
