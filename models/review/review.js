@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const isAdminOrModeratorRole = require("../../utils/isAdminOrModeratorRole");
 const { isEqual } = require("lodash");
-const likeSchema = require("./like");
-const dislikeSchema = require("./dislike");
+const likeSchema = require("./likeSchema");
+const dislikeSchema = require("./dislikeSchema");
 
 const reviewSchema = new mongoose.Schema({
   game: {
@@ -47,26 +47,6 @@ const reviewSchema = new mongoose.Schema({
   likes: likeSchema,
   dislikes: dislikeSchema,
 });
-
-reviewSchema.methods.increaseLikesByOne = function (user) {
-  this.likes.likesCount += 1;
-  this.likes.likedUsers.push(user);
-};
-
-reviewSchema.methods.decreaseLikesByOne = function (user) {
-  this.likes.likesCount -= 1;
-  this.likes.likedUsers.filter(
-    (likedUser) => likedUser._id.toHexString() === user._id
-  );
-};
-
-reviewSchema.methods.checkIfThisUserAlreadyPutLike = function (user) {
-  const { _id } = user;
-  const isThisUserAlredyPutLike = this.likes.likedUsers.find(
-    (likedUser) => likedUser._id.toHexString() === _id
-  );
-  return isThisUserAlredyPutLike;
-};
 
 reviewSchema.statics.getReviewsByGameId = function (gameId) {
   return this.find({
