@@ -10,7 +10,7 @@ const likedUsersSchema = new mongoose.Schema({
   likesDate: { type: Date, default: Date.now(), required: true },
 });
 
-const likesSchema = new mongoose.Schema({
+const likeSchema = new mongoose.Schema({
   likedUsers: {
     type: [likedUsersSchema],
     required: true,
@@ -22,4 +22,4 @@ const likesSchema = new mongoose.Schema({
   },
 });
 
-module.exports = likesSchema;
+module.exports = likeSchema;
