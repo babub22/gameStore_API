@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
 const extractMessageFromJoiError = require("./utils/extractMessageFromJoiError");
 const reviewValidator = require("../../../../utils/validators/review/reviewValidator");
+const getHexedObjectId = require("../../../../utils/getHexedObjectId");
 
 describe("reviewValidator", () => {
   test("if provided object is valid", () => {
@@ -117,5 +117,5 @@ function changeValueByKey(key, newValue) {
 const validNewReviewRequestBody = {
   text: "newGame",
   gameScore: 20,
-  gameId: new mongoose.Types.ObjectId().toHexString(),
+  gameId: getHexedObjectId(),
 };
