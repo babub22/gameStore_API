@@ -7,8 +7,6 @@ const { Game } = require("../models/game");
 const reviewValidator = require("../utils/validators/review/reviewValidator");
 const validateRequestBody = require("../middleware/validateRequestBody");
 const reviewPUTValidator = require("../utils/validators/review/PUTreviewValidator");
-const isAdminOrModeratorRole = require("../utils/isAdminOrModeratorRole");
-const { isEqual } = require("lodash");
 
 router.get(
   "/game/:objectId",
@@ -52,7 +50,7 @@ router.post(
 
     await newReview.save();
 
-    res.send(newReview);
+    res.status(201).send(newReview);
   }
 );
 
@@ -66,30 +64,21 @@ router.put(
   async (req, res) => {
     const { objectId: reviewId } = req.params;
 
-    const review = await Review.findById(reviewId);
+    const response = await Review.checkIfProvidedUserWroteThisReview(
+      reviewId,
+      req.user
+    );
 
-    if (!review) {
-      return res.status(404).send("This review does not exist!");
+    if (response) {
+      const { status, message } = response;
+      return res.status(status).send(message);
     }
 
-    const isUserRole = !isAdminOrModeratorRole(req.user.role);
-
-    const authorId = review.author._id.toHexString();
-    const { _id: userId } = req.user;
-
-    const isSameAuthorAndUserInRequest = isEqual(authorId, userId);
-
-    if (!isSameAuthorAndUserInRequest && isUserRole) {
-      return res
-        .status(403)
-        .send("You dont have permission to change this review!");
-    }
-
-    const updated = await Review.findByIdAndUpdate(reviewId, req.body, {
+    const updatedReview = await Review.findByIdAndUpdate(reviewId, req.body, {
       new: true,
     });
 
-    res.send(updated);
+    res.send(updatedReview);
   }
 );
 
