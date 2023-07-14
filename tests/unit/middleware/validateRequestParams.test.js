@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
 const validateRequestParams = require("../../../middleware/validateRequestParams");
 const callMockedValidatorMiddleware = require("./utils/callMockedValidatorMiddleware");
+const getHexedObjectId = require("../../../utils/getHexedObjectId");
 
 describe("getMiddlewareParams", () => {
   test("if provided parameters is invalid, it will return 400", () => {
@@ -35,7 +35,7 @@ describe("getMiddlewareParams", () => {
 
   test("if provided parameters is valid, next() will be run", () => {
     const requestParams = {
-      params: { objectId: new mongoose.Types.ObjectId().toHexString() },
+      params: { objectId: getHexedObjectId() },
     };
 
     const { next } = callMockedValidatorMiddleware(
