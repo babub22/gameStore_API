@@ -1,10 +1,8 @@
-const jwt = require("jsonwebtoken");
-const config = require("config");
-
 const { User } = require("../../../models/user");
 const app = require("../../../index");
 const { omit } = require("lodash");
 const getHashedString = require("../../../utils/bcrypt/getHashedString");
+const decodeToken = require("../../../utils/decodeToken");
 const request = require("supertest")(app);
 
 const route = "/api/users/";
@@ -41,11 +39,9 @@ describe(route, () => {
 
       test("if returned token is valid", async () => {
         const res = await exec(validUserData);
+        const token = res.header["x-auth-token"];
 
-        const decodedJWT = jwt.verify(
-          res.header["x-auth-token"],
-          config.get("jwtPrivateKey")
-        );
+        const decodedJWT = decodeToken(token);
 
         const userInDb = await User.findOne(omit(validUserData, ["password"]));
 
@@ -87,11 +83,9 @@ describe(route, () => {
       const { userId } = await createNewUser();
 
       const res = await exec(validLoginData);
+      const token = res.header["x-auth-token"];
 
-      const decodedJWT = jwt.verify(
-        res.header["x-auth-token"],
-        config.get("jwtPrivateKey")
-      );
+      const decodedJWT = decodeToken(token);
 
       expect(decodedJWT._id).toBe(userId);
     });
