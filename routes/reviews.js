@@ -119,11 +119,38 @@ router.post(
     const { user } = req;
 
     const isUserAlreadyPutLikeOnThisReview =
-      review.checkIfThisUserAlreadyPutLike(user);
+      review.likes.checkIfThisUserAlreadyPutLike(user);
 
     isUserAlreadyPutLikeOnThisReview
-      ? review.decreaseLikesByOne(user)
-      : review.increaseLikesByOne(user);
+      ? review.likes.decreaseLikesByOne(user)
+      : review.likes.increaseLikesByOne(user);
+
+    const saved = await review.save();
+
+    res.send(saved);
+  }
+);
+
+router.post(
+  "/:objectId/dislike",
+  [auth, validateRequestParams(objectIdValidator)],
+  async (req, res) => {
+    const { objectId: reviewId } = req.params;
+
+    const review = await Review.findById(reviewId);
+
+    if (!review) {
+      return res.status(404).send("This review does not exist!");
+    }
+
+    const { user } = req;
+
+    const isUserAlreadyPutLikeOnThisReview =
+      review.dislikes.checkIfThisUserAlreadyPutDislike(user);
+
+    isUserAlreadyPutLikeOnThisReview
+      ? review.dislikes.decreaseDislikesByOne(user)
+      : review.dislikes.increaseDislikesByOne(user);
 
     const saved = await review.save();
 
