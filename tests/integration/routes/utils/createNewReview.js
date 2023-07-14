@@ -11,6 +11,14 @@ async function getValidNewReviewProperties(token) {
     author: user,
     text: new Array(15).join("a"),
     gameScore: 7,
+    likes: {
+      likedUsers: [],
+      likesCount: 0,
+    },
+    dislikes: {
+      dislikedUsers: [],
+      dislikesCount: 0,
+    },
   };
 
   return review;
