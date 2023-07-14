@@ -164,6 +164,55 @@ describe(route, () => {
       });
     });
   });
+
+  describe("DELETE", () => {
+    describe(" /:reviewId", () => {
+      const exec = (reviewId, token) =>
+        request.delete(route + reviewId).set("x-auth-token", token);
+
+      test("if user who try to change review is not the moderator/admin/user who wrote this review, it will return 403", async () => {
+        const { token } = getUserToken();
+        const { reviewId } = await createNewReview(token);
+
+        const { token: anotherToken } = getUserToken();
+
+        const res = await exec(reviewId, anotherToken);
+        expect(res.status).toBe(403);
+      });
+
+      test("if review for provided reviewId doesnt exist, it will return 404", async () => {
+        const { token } = getUserToken();
+        const wrongReviewId = new mongoose.Types.ObjectId().toHexString();
+
+        const res = await exec(wrongReviewId, token);
+        expect(res.status).toBe(404);
+      });
+      test("if valid request, it will send 200", async () => {
+        const { token } = getUserToken();
+        const { reviewId } = await createNewReview(token);
+
+        const res = await exec(reviewId, token);
+        expect(res.status).toBe(200);
+      });
+      test("if valid request, it will send deleted document", async () => {
+        const { token } = getUserToken();
+        const { reviewId } = await createNewReview(token);
+
+        const res = await exec(reviewId, token);
+        expect(res.body._id).toEqual(reviewId);
+      });
+      test("if document was deleted", async () => {
+        const { token } = getUserToken();
+        const { reviewId } = await createNewReview(token);
+
+        await exec(reviewId, token);
+
+        const deletedReviewInDB = await Review.findById(reviewId);
+
+        expect(deletedReviewInDB).toBeNull();
+      });
+    });
+  });
 });
 
 async function getValidPOSTReqBody() {
