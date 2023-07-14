@@ -1,11 +1,9 @@
-const config = require("config");
-const jwt = require("jsonwebtoken");
-
 const getAdminToken = require("./getAdminToken");
+const decodeToken = require("../../utils/decodeToken");
 
 describe("getAdminToken", () => {
   const { token } = getAdminToken();
-  const decoded = jwt.verify(token, config.get("jwtPrivateKey"));
+  const decoded = decodeToken(token);
 
   test("if token payload contains the correct data", () => {
     expect(Object.keys(decoded)).toEqual(
