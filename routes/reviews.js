@@ -82,4 +82,26 @@ router.put(
   }
 );
 
+router.delete(
+  "/:objectId",
+  [auth, validateRequestParams(objectIdValidator)],
+  async (req, res) => {
+    const { objectId: reviewId } = req.params;
+
+    const response = await Review.checkIfProvidedUserWroteThisReview(
+      reviewId,
+      req.user
+    );
+
+    if (response) {
+      const { status, message } = response;
+      return res.status(status).send(message);
+    }
+
+    const deletedReview = await Review.findByIdAndDelete(reviewId);
+
+    res.send(deletedReview);
+  }
+);
+
 module.exports = router;
