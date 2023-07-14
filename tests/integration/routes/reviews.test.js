@@ -213,6 +213,53 @@ describe(route, () => {
       });
     });
   });
+  describe("checkIfProvidedUserWroteThisReview", () => {
+    test("if review for provided id doesnt exist, it will return 403 status and message", async () => {
+      const { token } = getUserToken();
+      const wrongReviewId = new mongoose.Types.ObjectId().toHexString();
+
+      const decoded = jwt.verify(token, config.get("jwtPrivateKey"));
+
+      const response = await Review.checkIfProvidedUserWroteThisReview(
+        wrongReviewId,
+        decoded
+      );
+      expect(response).toMatchObject({
+        status: 404,
+        message: "This review does not exist!",
+      });
+    });
+
+    test("if user dont have permission to change this review, it will return 404 status and message", async () => {
+      const { token } = getUserToken();
+      const { reviewId } = await createNewReview(token);
+      const { token: anotherToken } = getUserToken();
+
+      const decoded = jwt.verify(anotherToken, config.get("jwtPrivateKey"));
+
+      const response = await Review.checkIfProvidedUserWroteThisReview(
+        reviewId,
+        decoded
+      );
+      expect(response).toMatchObject({
+        status: 403,
+        message: "You dont have permission to change this review!",
+      });
+    });
+
+    test("if it valid request, it will return null", async () => {
+      const { token } = getUserToken();
+      const { reviewId } = await createNewReview(token);
+
+      const decoded = jwt.verify(token, config.get("jwtPrivateKey"));
+
+      const response = await Review.checkIfProvidedUserWroteThisReview(
+        reviewId,
+        decoded
+      );
+      expect(response).toBeUndefined();
+    });
+  });
 });
 
 async function getValidPOSTReqBody() {
