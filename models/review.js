@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const isAdminOrModeratorRole = require("../utils/isAdminOrModeratorRole");
+const { isEqual } = require("lodash");
 
 const reviewSchema = new mongoose.Schema({
   game: {
@@ -52,6 +54,31 @@ reviewSchema.statics.getReviewsByAuthorId = function (gameId) {
   return this.find({
     "author._id": gameId,
   });
+};
+
+reviewSchema.statics.checkIfProvidedUserWroteThisReview = async function (
+  reviewId,
+  user
+) {
+  const review = await this.findById(reviewId);
+
+  if (!review) {
+    return { status: 404, message: "This review does not exist!" };
+  }
+
+  const isUserRole = !isAdminOrModeratorRole(user.role);
+
+  const authorId = review.author._id.toHexString();
+  const { _id: userId } = user;
+
+  const isSameAuthorAndUserInRequest = isEqual(authorId, userId);
+
+  if (!isSameAuthorAndUserInRequest && isUserRole) {
+    return {
+      status: 403,
+      message: "You dont have permission to change this review!",
+    };
+  }
 };
 
 const Review = mongoose.model("Review", reviewSchema);
