@@ -1,4 +1,4 @@
-const { Review } = require("../models/review");
+const { Review } = require("../models/review/review");
 const objectIdValidator = require("../utils/validators/objectIdValidator");
 const router = require("express").Router();
 const validateRequestParams = require("../middleware/validateRequestParams");
@@ -101,6 +101,33 @@ router.delete(
     const deletedReview = await Review.findByIdAndDelete(reviewId);
 
     res.send(deletedReview);
+  }
+);
+
+router.post(
+  "/:objectId/like",
+  [auth, validateRequestParams(objectIdValidator)],
+  async (req, res) => {
+    const { objectId: reviewId } = req.params;
+
+    const review = await Review.findById(reviewId);
+
+    if (!review) {
+      return res.status(404).send("This review does not exist!");
+    }
+
+    const { user } = req;
+
+    const isUserAlreadyPutLikeOnThisReview =
+      review.checkIfThisUserAlreadyPutLike(user);
+
+    isUserAlreadyPutLikeOnThisReview
+      ? review.decreaseLikesByOne(user)
+      : review.increaseLikesByOne(user);
+
+    const saved = await review.save();
+
+    res.send(saved);
   }
 );
 
