@@ -1,11 +1,9 @@
-const config = require("config");
-const jwt = require("jsonwebtoken");
-
 const getUserToken = require("./getUserToken");
+const decodeToken = require("../../utils/decodeToken");
 
 describe("getUserToken", () => {
   const { token } = getUserToken();
-  const decoded = jwt.verify(token, config.get("jwtPrivateKey"));
+  const decoded = decodeToken(token);
 
   test("if token payload contains the correct data", () => {
     expect(Object.keys(decoded)).toEqual(
