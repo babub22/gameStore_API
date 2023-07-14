@@ -1,5 +1,3 @@
-const jwt = require("jsonwebtoken");
-const config = require("config");
 const { Game } = require("../../../models/game");
 const app = require("../../../index");
 const request = require("supertest")(app);
@@ -10,6 +8,7 @@ const { Developer } = require("../../../models/developer");
 const getAdminToken = require("../../utils/getAdminToken");
 const mongoose = require("mongoose");
 const createNewGame = require("./utils/createNewGame");
+const decodeToken = require("../../../utils/decodeToken");
 
 const route = "/api/games";
 
@@ -88,7 +87,7 @@ describe(route, () => {
         const validNewGameParams = await getValidNewGameParams();
         const res = await exec(validNewGameParams);
 
-        const decodedJWT = jwt.verify(token, config.get("jwtPrivateKey"));
+        const decodedJWT = decodeToken(token);
 
         expect(res.body.addedBy).toEqual(decodedJWT.name);
       });
