@@ -1,11 +1,10 @@
-const jwt = require("jsonwebtoken");
-const config = require("config");
-const { Review } = require("../../../../models/review");
+const { Review } = require("../../../../models/review/review");
 const createNewGame = require("./createNewGame");
+const decodeToken = require("../../../../utils/decodeToken");
 
 async function getValidNewReviewProperties(token) {
   const { newGame } = await createNewGame();
-  const user = jwt.verify(token, config.get("jwtPrivateKey"));
+  const user = decodeToken(token);
 
   const review = {
     game: newGame,
