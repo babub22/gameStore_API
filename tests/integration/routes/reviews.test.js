@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const config = require("config");
 const app = require("../../../index");
 const request = require("supertest")(app);
-const { Review } = require("../../../models/review");
+const { Review } = require("../../../models/review/review");
 const createNewGame = require("./utils/createNewGame");
 const getAdminToken = require("../../utils/getAdminToken");
 const { Game } = require("../../../models/game");
@@ -12,6 +12,7 @@ const getUserToken = require("../../utils/getUserToken");
 const createNewReview = require("./utils/createNewReview");
 const mongoose = require("mongoose");
 const { omit } = require("lodash");
+const decodeToken = require("../../../utils/decodeToken");
 
 const route = "/api/reviews/";
 
@@ -96,7 +97,7 @@ describe(route, () => {
         const validNewGameParams = await getValidPOSTReqBody();
         const res = await exec(validNewGameParams);
 
-        const decodedJWT = jwt.verify(token, config.get("jwtPrivateKey"));
+        const decodedJWT = decodeToken(token);
         const userProps = omit(decodedJWT, ["iat", "role"]);
 
         expect(res.body.author).toEqual(userProps);
@@ -218,7 +219,7 @@ describe(route, () => {
       const { token } = getUserToken();
       const wrongReviewId = new mongoose.Types.ObjectId().toHexString();
 
-      const decoded = jwt.verify(token, config.get("jwtPrivateKey"));
+      const decoded = decodeToken(token);
 
       const response = await Review.checkIfProvidedUserWroteThisReview(
         wrongReviewId,
@@ -235,7 +236,7 @@ describe(route, () => {
       const { reviewId } = await createNewReview(token);
       const { token: anotherToken } = getUserToken();
 
-      const decoded = jwt.verify(anotherToken, config.get("jwtPrivateKey"));
+      const decoded = decodeToken(anotherToken);
 
       const response = await Review.checkIfProvidedUserWroteThisReview(
         reviewId,
@@ -251,7 +252,7 @@ describe(route, () => {
       const { token } = getUserToken();
       const { reviewId } = await createNewReview(token);
 
-      const decoded = jwt.verify(token, config.get("jwtPrivateKey"));
+      const decoded = decodeToken(token);
 
       const response = await Review.checkIfProvidedUserWroteThisReview(
         reviewId,
