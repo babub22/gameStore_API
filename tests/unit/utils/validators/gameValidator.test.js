@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
 const gameValidator = require("../../../../utils/validators/game/gameValidator");
 const extractMessageFromJoiError = require("./utils/extractMessageFromJoiError");
+const getHexedObjectId = require("../../../../utils/getHexedObjectId");
 
 describe("gameValidator", () => {
   test("if provided object is valid", () => {
@@ -185,6 +185,6 @@ const validNewGameRequestBody = {
   price: 20,
   releaseDate: new Date("1970-05-30"),
   description: new Array(26).join("a"),
-  developerId: new mongoose.Types.ObjectId().toHexString(),
-  genreId: new mongoose.Types.ObjectId().toHexString(),
+  developerId: getHexedObjectId(),
+  genreId: getHexedObjectId(),
 };
