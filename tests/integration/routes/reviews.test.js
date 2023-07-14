@@ -337,6 +337,84 @@ describe(route, () => {
           expect(likedReviewInDB.likes.likesCount).toBe(0);
         });
       });
+
+      describe("/dislike", () => {
+        const exec = (reviewId, token) =>
+          request
+            .post(route + reviewId + "/dislike")
+            .set("x-auth-token", token);
+
+        test("if review for provided id doesnt exist, it will return 404", async () => {
+          const { token } = getUserToken();
+          const wrongReviewId = getHexedObjectId();
+
+          const res = await exec(wrongReviewId, token);
+          expect(res.status).toBe(404);
+        });
+        test("if it valid request, it will return 200", async () => {
+          const { token } = getUserToken();
+          const { reviewId } = await createNewReview(token);
+
+          const res = await exec(reviewId, token);
+          expect(res.status).toBe(200);
+        });
+        test("if dislike was put on created review", async () => {
+          const { token } = getUserToken();
+          const { reviewId } = await createNewReview(token);
+
+          await exec(reviewId, token);
+
+          const dislikedReviewInDB = await Review.findById(reviewId);
+
+          expect(dislikedReviewInDB.dislikes).toBeDefined();
+        });
+        test("if dislikesCount property has been increased by one", async () => {
+          const { token } = getUserToken();
+          const { reviewId } = await createNewReview(token);
+
+          await exec(reviewId, token);
+
+          const dislikedReviewInDB = await Review.findById(reviewId);
+
+          expect(dislikedReviewInDB.dislikes.dislikesCount).toBe(1);
+        });
+        test("if current user has been added to dislikedUsers array", async () => {
+          const { token } = getUserToken();
+          const { reviewId } = await createNewReview(token);
+          const decoded = decodeToken(token);
+
+          await exec(reviewId, token);
+
+          const dislikedReviewInDB = await Review.findById(reviewId);
+          const likedUserId =
+            dislikedReviewInDB.dislikes.dislikedUsers[0]._id.toHexString();
+
+          expect(likedUserId).toEqual(decoded._id);
+        });
+        test("if property dislikesDate was set in user object", async () => {
+          const { token } = getUserToken();
+          const { reviewId } = await createNewReview(token);
+
+          await exec(reviewId, token);
+
+          const dislikedReviewInDB = await Review.findById(reviewId);
+
+          expect(
+            dislikedReviewInDB.dislikes.dislikedUsers[0].dislikesDate
+          ).toBeDefined();
+        });
+        test("if current user already have dislike so dislikesCount should be decreased by one", async () => {
+          const { token } = getUserToken();
+          const { reviewId } = await createNewReview(token);
+
+          await exec(reviewId, token);
+          await exec(reviewId, token);
+
+          const dislikedReviewInDB = await Review.findById(reviewId);
+
+          expect(dislikedReviewInDB.dislikes.dislikesCount).toBe(0);
+        });
+      });
     });
   });
 });
