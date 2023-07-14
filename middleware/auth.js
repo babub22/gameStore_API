@@ -1,5 +1,4 @@
-const jwt = require("jsonwebtoken");
-const config = require("config");
+const decodeToken = require("../utils/decodeToken");
 
 function auth(req, res, next) {
   const token = req.header("x-auth-token");
@@ -9,7 +8,7 @@ function auth(req, res, next) {
   }
 
   try {
-    const payload = jwt.verify(token, config.get("jwtPrivateKey"));
+    const payload = decodeToken(token);
     req.user = payload;
 
     next();
