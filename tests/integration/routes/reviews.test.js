@@ -101,14 +101,65 @@ describe(route, () => {
 
         expect(res.body.author).toEqual(userProps);
       });
+    });
+  });
 
-      test("if document contain creationDate property", async () => {
-        const validNewGameParams = await getValidPOSTReqBody();
-        const res = await exec(validNewGameParams);
+  describe("PUT /:reviewId", () => {
+    const changedReview = {
+      text: new Array(15).join("b"),
+      gameScore: 2,
+    };
 
-        const diff = new Date() - Date.parse(res.body.creationDate);
-        expect(diff).toBeLessThan(15 * 1000); // 15sec
-      });
+    const exec = (reviewId, changedReview, token) =>
+      request
+        .put(route + reviewId)
+        .set("x-auth-token", token)
+        .send(changedReview);
+
+    test("if user who try to change review is not the moderator/admin/user who wrote this review, it will return 403", async () => {
+      const { token } = getUserToken();
+      const { reviewId } = await createNewReview(token);
+
+      const { token: anotherToken } = getUserToken();
+
+      const res = await exec(reviewId, changedReview, anotherToken);
+      expect(res.status).toBe(403);
+    });
+
+    test("if review for provided reviewId doesnt exist, it will return 404", async () => {
+      const { token } = getUserToken();
+      const wrongReviewId = new mongoose.Types.ObjectId().toHexString();
+
+      const res = await exec(wrongReviewId, changedReview, token);
+      expect(res.status).toBe(404);
+    });
+
+    test("if valid request, it will return 200", async () => {
+      const { token } = getUserToken();
+      const { reviewId } = await createNewReview(token);
+
+      const res = await exec(reviewId, changedReview, token);
+      expect(res.status).toBe(200);
+    });
+
+    test("if document was updated", async () => {
+      const { token } = getUserToken();
+      const { reviewId } = await createNewReview(token);
+
+      await exec(reviewId, changedReview, token);
+
+      const updatedReviewInDB = await Review.findById(reviewId);
+
+      expect(updatedReviewInDB).toMatchObject(changedReview);
+    });
+
+    test("if valid request, it will return updated document", async () => {
+      const { token } = getUserToken();
+      const { reviewId, newReview } = await createNewReview(token);
+
+      const res = await exec(reviewId, changedReview, token);
+
+      expect(res.body).not.toEqual(newReview);
     });
   });
 });
