@@ -13,6 +13,7 @@ const createNewReview = require("./utils/createNewReview");
 const mongoose = require("mongoose");
 const { omit } = require("lodash");
 const decodeToken = require("../../../utils/decodeToken");
+const getHexedObjectId = require("../../../utils/getHexedObjectId");
 
 const route = "/api/reviews/";
 
@@ -130,7 +131,7 @@ describe(route, () => {
 
       test("if review for provided reviewId doesnt exist, it will return 404", async () => {
         const { token } = getUserToken();
-        const wrongReviewId = new mongoose.Types.ObjectId().toHexString();
+        const wrongReviewId = getHexedObjectId();
 
         const res = await exec(wrongReviewId, changedReview, token);
         expect(res.status).toBe(404);
@@ -183,7 +184,7 @@ describe(route, () => {
 
       test("if review for provided reviewId doesnt exist, it will return 404", async () => {
         const { token } = getUserToken();
-        const wrongReviewId = new mongoose.Types.ObjectId().toHexString();
+        const wrongReviewId = getHexedObjectId();
 
         const res = await exec(wrongReviewId, token);
         expect(res.status).toBe(404);
@@ -214,10 +215,11 @@ describe(route, () => {
       });
     });
   });
+
   describe("checkIfProvidedUserWroteThisReview", () => {
     test("if review for provided id doesnt exist, it will return 403 status and message", async () => {
       const { token } = getUserToken();
-      const wrongReviewId = new mongoose.Types.ObjectId().toHexString();
+      const wrongReviewId = getHexedObjectId();
 
       const decoded = decodeToken(token);
 
