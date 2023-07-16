@@ -44,8 +44,8 @@ const reviewSchema = new mongoose.Schema({
   updateDate: {
     type: Date,
   },
-  likes: likeSchema,
-  dislikes: dislikeSchema,
+  likes: { type: likeSchema, default: { likeSchema } },
+  dislikes: { type: dislikeSchema, default: { dislikeSchema } },
 });
 
 reviewSchema.statics.getReviewsByGameId = function (gameId) {
