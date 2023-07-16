@@ -15,14 +15,14 @@ router.post(
   "/singup",
   validateRequestBody(registrationDataValidator),
   async (req, res) => {
-    const response = await User.validateSingup(req.body);
+    const { isValidRequest, resultBody } = await User.validateSingup(req.body);
 
-    if (!response?.token) {
-      const { status, message } = response;
+    if (!isValidRequest) {
+      const { message, status } = resultBody;
       return res.status(status).send(message);
     }
 
-    res.header("x-auth-token", response.token).send(response.newUser);
+    res.header("x-auth-token", resultBody.token).send(resultBody.newUser);
   }
 );
 
@@ -30,16 +30,16 @@ router.post(
   "/singin",
   validateRequestBody(loginDataValidator),
   async (req, res) => {
-    const response = await User.validateSignin(req.body);
+    const { isValidRequest, resultBody } = await User.validateSignin(req.body);
 
-    if (!response?.token) {
-      const { status, message } = response;
+    if (!isValidRequest) {
+      const { message, status } = resultBody;
       return res.status(status).send(message);
     }
 
     res
-      .header("x-auth-token", response.token)
-      .send(`Welcome ${response.name}!`);
+      .header("x-auth-token", resultBody.token)
+      .send(`Welcome ${resultBody.name}!`);
   }
 );
 
@@ -54,18 +54,18 @@ router.post(
     const { reason } = req.body;
     const currentUser = req.user;
 
-    const { isValidRequest, body } = await User.blockUserById({
+    const { isValidRequest, resultBody } = await User.blockUserById({
       userId,
       reason,
       currentUser,
     });
 
     if (!isValidRequest) {
-      const { message, status } = body;
+      const { message, status } = resultBody;
       return res.status(status).send(message);
     }
 
-    res.send(body.user);
+    res.send(resultBody);
   }
 );
 
