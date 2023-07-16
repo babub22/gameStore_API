@@ -1,11 +1,11 @@
 const { User } = require("../../../models/user/user");
 const app = require("../../../index");
 const { omit } = require("lodash");
-const getHashedString = require("../../../utils/bcrypt/getHashedString");
 const decodeToken = require("../../../utils/decodeToken");
 const getHexedObjectId = require("../../../utils/getHexedObjectId");
 const getUserToken = require("../../utils/getUserToken");
 const getAdminToken = require("../../utils/getAdminToken");
+const { createNewUser, validUserData } = require("./utils/createNewUser");
 const request = require("supertest")(app);
 
 const route = "/api/users/";
@@ -109,7 +109,7 @@ describe(route, () => {
       });
     });
 
-    describe("/:objectId/block", () => {
+    describe("/:userId/block", () => {
       const { token: adminToken, objectId: adminUserId } = getAdminToken();
       const blockingReason = { reason: "Test test" };
 
@@ -179,20 +179,3 @@ describe(route, () => {
     });
   });
 });
-
-const validUserData = {
-  name: "newUser",
-  email: "example@gmail.com",
-  password: "1234",
-};
-
-async function createNewUser() {
-  const hashedPassword = await getHashedString(validUserData.password);
-  const newUser = new User({ ...validUserData, password: hashedPassword });
-
-  await newUser.save();
-
-  const userId = newUser._id.toHexString();
-
-  return { userId, newUser };
-}
