@@ -2,7 +2,7 @@ const { Review } = require("../../../../models/review/review");
 const createNewGame = require("./createNewGame");
 const decodeToken = require("../../../../utils/decodeToken");
 
-async function getValidNewReviewProperties(token) {
+async function getValidNewReviewObject(token) {
   const { newGame } = await createNewGame();
   const user = decodeToken(token);
 
@@ -11,21 +11,13 @@ async function getValidNewReviewProperties(token) {
     author: user,
     text: new Array(15).join("a"),
     gameScore: 7,
-    likes: {
-      likedUsers: [],
-      likesCount: 0,
-    },
-    dislikes: {
-      dislikedUsers: [],
-      dislikesCount: 0,
-    },
   };
 
   return review;
 }
 
 async function createNewReview(token) {
-  const validReviewProperties = await getValidNewReviewProperties(token);
+  const validReviewProperties = await getValidNewReviewObject(token);
 
   const newReview = new Review(validReviewProperties);
 
