@@ -33,7 +33,34 @@ const userSchema = new mongoose.Schema({
     default: false,
     require: true,
   },
+  userStatus: { type: userStatusSchema, default: { userStatusSchema } },
 });
+
+userSchema.statics.blockUserById = async function ({
+  userId,
+  currentUser,
+  reason,
+}) {
+  const user = await this.findByIdAndUpdate(
+    userId,
+    {
+      userStatus: {
+        status: "Blocked",
+        blockingInfo: { reason, blockedBy: currentUser },
+      },
+    },
+    { new: true }
+  );
+
+  if (!user) {
+    return {
+      isValidRequest: false,
+      body: { status: 404, message: "This user doesnt exist!" },
+    };
+  }
+
+  return { isValidRequest: true, body: user };
+};
 
 userSchema.methods.generateAuthToken = function () {
   return jwt.sign(
@@ -52,6 +79,17 @@ userSchema.statics.validateSignin = async function ({ password, email }) {
 
   if (!user) {
     return { status: 404, message: "User with this mail doesnt exist!" };
+  }
+
+  const isBlockedUser = user.userStatus.status === "Blocked";
+
+  if (isBlockedUser) {
+    const { blockedBy } = user.userStatus.blockingInfo;
+
+    return {
+      status: 403,
+      message: `You have been blocked by ${blockedBy.name}, you can no longer sing in to your account!`,
+    };
   }
 
   const isValidPassword = await compareHashedStrings(password, user.password);
