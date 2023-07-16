@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { User } = require("../../models/user");
+const { User } = require("../../models/user/user");
 
 function getModeratorToken() {
   const objectId = new mongoose.Types.ObjectId();
