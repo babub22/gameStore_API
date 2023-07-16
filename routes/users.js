@@ -1,11 +1,13 @@
 const express = require("express");
 const validateRequestBody = require("../middleware/validateRequestBody");
 const registrationDataValidator = require("../utils/validators/user/registrationDataValidator");
-const { User } = require("../models/user");
-const getHashedString = require("../utils/bcrypt/getHashedString");
-const { pick, omit } = require("lodash");
+const { User } = require("../models/user/user");
 const loginDataValidator = require("../utils/validators/user/loginDataValidator");
-const compareHashedStrings = require("../utils/bcrypt/compareHashedStrings");
+const auth = require("../middleware/auth");
+const moderator = require("../middleware/moderator");
+const validateRequestParams = require("../middleware/validateRequestParams");
+const objectIdValidator = require("../utils/validators/objectIdValidator");
+const blockingInfoValidator = require("../utils/validators/user/blockingInfoValidator");
 
 const router = express.Router();
 
@@ -13,27 +15,14 @@ router.post(
   "/singup",
   validateRequestBody(registrationDataValidator),
   async (req, res) => {
-    const user = await User.findOne(omit(req.body, ["password"]));
+    const response = await User.validateSingup(req.body);
 
-    if (user) {
-      return res.status(400).send("This user already exist!");
+    if (!response?.token) {
+      const { status, message } = response;
+      return res.status(status).send(message);
     }
 
-    const { password } = req.body;
-    const heshedPassword = await getHashedString(password);
-
-    const newUser = new User({
-      ...req.body,
-      password: heshedPassword,
-    });
-
-    await newUser.save();
-
-    const token = newUser.generateAuthToken();
-
-    res
-      .header("x-auth-token", token)
-      .send(pick(newUser, ["_id", "name", "email"]));
+    res.header("x-auth-token", response.token).send(response.newUser);
   }
 );
 
@@ -41,23 +30,42 @@ router.post(
   "/singin",
   validateRequestBody(loginDataValidator),
   async (req, res) => {
-    const { password, email } = req.body;
+    const response = await User.validateSignin(req.body);
 
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(404).send("User with this mail doesnt exist!");
+    if (!response?.token) {
+      const { status, message } = response;
+      return res.status(status).send(message);
     }
 
-    const isValidPassword = await compareHashedStrings(password, user.password);
+    res
+      .header("x-auth-token", response.token)
+      .send(`Welcome ${response.name}!`);
+  }
+);
 
-    if (!isValidPassword) {
-      return res.status(404).send("Password is wrong!");
+router.post(
+  "/:objectId/block",
+  auth,
+  moderator,
+  validateRequestBody(blockingInfoValidator),
+  validateRequestParams(objectIdValidator),
+  async (req, res) => {
+    const { objectId: userId } = req.params;
+    const { reason } = req.body;
+    const currentUser = req.user;
+
+    const { isValidRequest, body } = await User.blockUserById({
+      userId,
+      reason,
+      currentUser,
+    });
+
+    if (!isValidRequest) {
+      const { message, status } = body;
+      return res.status(status).send(message);
     }
 
-    const token = await user.generateAuthToken();
-
-    res.header("x-auth-token", token).send(`Welcome ${user.name}!`);
+    res.send(body.user);
   }
 );
 
