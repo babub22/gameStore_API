@@ -1,9 +1,9 @@
 const app = require("express")();
 const winston = require("winston");
 
+require("./setup/logging")();
 require("./setup/dbConnection")();
 require("./setup/routes")(app);
-require("./setup/logging")();
 
 const PORT = process.env.PORT;
 
