@@ -1,6 +1,6 @@
 const { Game } = require("../../../models/game");
-const app = require("../../../index");
-const request = require("supertest")(app);
+const server = require("../../../index");
+const request = require("supertest")(server);
 const createNewGenre = require("./utils/createNewGenre");
 const createNewDevelover = require("./utils/createNewDevelover");
 const { Genre } = require("../../../models/genre");
@@ -9,10 +9,16 @@ const getAdminToken = require("../../utils/getAdminToken");
 const mongoose = require("mongoose");
 const createNewGame = require("./utils/createNewGame");
 const decodeToken = require("../../../utils/decodeToken");
+const dbDisconnection = require("../../../setup/dbDisconnection");
 
 const route = "/api/games";
 
 describe(route, () => {
+  afterAll(() => {
+    dbDisconnection();
+    server.close();
+  });
+
   afterEach(async () => {
     await Game.deleteMany({});
     await Genre.deleteMany({});
