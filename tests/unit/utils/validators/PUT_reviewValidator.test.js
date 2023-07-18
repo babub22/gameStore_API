@@ -1,22 +1,22 @@
 const extractMessageFromJoiError = require("./utils/extractMessageFromJoiError");
-const reviewPUTValidator = require("../../../../utils/validators/review/PUTreviewValidator");
+const PUT_reviewValidator = require("../../../../utils/validators/review/PUT_reviewValidator");
 const getHexedObjectId = require("../../../../utils/getHexedObjectId");
 
-describe("reviewPUTValidator", () => {
+describe("PUT_reviewValidator", () => {
   test("if provided object is valid", () => {
-    const result = reviewPUTValidator(validNewReviewRequestBody);
+    const result = PUT_reviewValidator(validNewReviewRequestBody);
 
     expect(result.value).toEqual(validNewReviewRequestBody);
   });
 
   test("if game object was not provided", () => {
-    const { value } = reviewPUTValidator();
+    const { value } = PUT_reviewValidator();
 
     expect(value).toBeUndefined();
   });
 
   test("if sended object have wrong properties", () => {
-    const { error } = reviewPUTValidator(validNewGameRequestBody);
+    const { error } = PUT_reviewValidator(validNewGameRequestBody);
     const message = extractMessageFromJoiError(error);
 
     expect(message).toMatch('"text" is required');
@@ -26,7 +26,7 @@ describe("reviewPUTValidator", () => {
     test("is empty", () => {
       const requestBody = changeValueByKey("text", "");
 
-      const { error } = reviewPUTValidator(requestBody);
+      const { error } = PUT_reviewValidator(requestBody);
       const message = extractMessageFromJoiError(error);
 
       expect(message).toMatch("is not allowed to be empty");
@@ -35,7 +35,7 @@ describe("reviewPUTValidator", () => {
     test("not a string", () => {
       const requestBody = changeValueByKey("text", 0);
 
-      const { error } = reviewPUTValidator(requestBody);
+      const { error } = PUT_reviewValidator(requestBody);
       const message = extractMessageFromJoiError(error);
 
       expect(message).toMatch("must be a string");
@@ -44,7 +44,7 @@ describe("reviewPUTValidator", () => {
     test("length less than 3", () => {
       const requestBody = changeValueByKey("text", "aa");
 
-      const { error } = reviewPUTValidator(requestBody);
+      const { error } = PUT_reviewValidator(requestBody);
       const message = extractMessageFromJoiError(error);
 
       expect(message).toMatch("length must be at least 3 characters long");
@@ -52,7 +52,7 @@ describe("reviewPUTValidator", () => {
     test("was not provided", () => {
       const requestBody = changeValueByKey("text", "");
 
-      const { error } = reviewPUTValidator(requestBody);
+      const { error } = PUT_reviewValidator(requestBody);
       const message = extractMessageFromJoiError(error);
 
       expect(message).toMatch("is not allowed to be empty");
@@ -63,7 +63,7 @@ describe("reviewPUTValidator", () => {
     test("not a number", () => {
       const requestBody = changeValueByKey("gameScore", "one");
 
-      const { error } = reviewPUTValidator(requestBody);
+      const { error } = PUT_reviewValidator(requestBody);
       const message = extractMessageFromJoiError(error);
 
       expect(message).toMatch("must be a number");
@@ -72,7 +72,7 @@ describe("reviewPUTValidator", () => {
     test("less than 0", () => {
       const requestBody = changeValueByKey("gameScore", -1);
 
-      const { error } = reviewPUTValidator(requestBody);
+      const { error } = PUT_reviewValidator(requestBody);
       const message = extractMessageFromJoiError(error);
 
       expect(message).toMatch("must be greater than or equal to 0");
@@ -81,7 +81,7 @@ describe("reviewPUTValidator", () => {
     test("more than 10", () => {
       const requestBody = changeValueByKey("gameScore", 11);
 
-      const { error } = reviewPUTValidator(requestBody);
+      const { error } = PUT_reviewValidator(requestBody);
       const message = extractMessageFromJoiError(error);
 
       expect(message).toMatch("must be less than or equal to 10");
@@ -89,7 +89,7 @@ describe("reviewPUTValidator", () => {
     test("was not provided", () => {
       const requestBody = changeValueByKey("gameScore");
 
-      const { error } = reviewPUTValidator(requestBody);
+      const { error } = PUT_reviewValidator(requestBody);
       const message = extractMessageFromJoiError(error);
 
       expect(message).toMatch("is required");
