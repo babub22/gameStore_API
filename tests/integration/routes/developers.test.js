@@ -1,12 +1,18 @@
-const app = require("../../../index");
-const request = require("supertest")(app);
+const server = require("../../../index");
+const request = require("supertest")(server);
 const { Developer } = require("../../../models/developer");
 const getAdminToken = require("../../utils/getAdminToken");
 const createNewDevelover = require("./utils/createNewDevelover");
+const dbDisconnection = require("../../../setup/dbDisconnection");
 
 const route = "/api/developers";
 
 describe(route, () => {
+  afterAll(() => {
+    dbDisconnection();
+    server.close();
+  });
+
   afterEach(async () => {
     await Developer.deleteMany({});
   });
