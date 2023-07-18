@@ -7,6 +7,7 @@ const { Game } = require("../models/game");
 const reviewValidator = require("../utils/validators/review/reviewValidator");
 const validateRequestBody = require("../middleware/validateRequestBody");
 const PUT_reviewValidator = require("../utils/validators/review/PUT_reviewValidator");
+const { User } = require("../models/user/user");
 
 router.get(
   "/game/:objectId",
@@ -31,10 +32,14 @@ router.get(
 );
 
 router.post(
-  "/",
-  [auth, validateRequestBody(reviewValidator)],
+  "/:objectId",
+  [
+    auth,
+    validateRequestParams(objectIdValidator),
+    validateRequestBody(reviewValidator),
+  ],
   async (req, res) => {
-    const { gameId } = req.body;
+    const { objectId: gameId } = req.params;
 
     const game = await Game.findById(gameId);
 
@@ -49,6 +54,10 @@ router.post(
     });
 
     await newReview.save();
+
+    await User.findByIdAndUpdate(newReview.author._id, {
+      $inc: { reviewsCount: 1 },
+    });
 
     res.status(201).send(newReview);
   }
