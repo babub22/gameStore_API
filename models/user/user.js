@@ -27,9 +27,15 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ["User", "Moderator", "Admin"],
   },
+  reviewsCount: {
+    type: Number,
+    default: 0,
+  },
   isReviewer: {
     type: Boolean,
-    default: false,
+    default: function () {
+      return this.reviewsCount >= 30;
+    },
     require: true,
   },
   userStatus: { type: userStatusSchema, default: { userStatusSchema } },
