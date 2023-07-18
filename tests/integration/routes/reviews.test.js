@@ -12,6 +12,8 @@ const mongoose = require("mongoose");
 const { omit } = require("lodash");
 const decodeToken = require("../../../utils/decodeToken");
 const getHexedObjectId = require("../../../utils/getHexedObjectId");
+const { User } = require("../../../models/user/user");
+const { createNewUser } = require("./utils/createNewUser");
 const dbDisconnection = require("../../../setup/dbDisconnection");
 
 const route = "/api/reviews/";
@@ -27,6 +29,7 @@ describe(route, () => {
     await Game.deleteMany({});
     await Genre.deleteMany({});
     await Developer.deleteMany({});
+    await User.deleteMany({});
   });
 
   const { token } = getAdminToken();
@@ -77,35 +80,46 @@ describe(route, () => {
 
   describe("POST", () => {
     const { token } = getUserToken();
-    const exec = (newReview) =>
-      request.post(route).set("x-auth-token", token).send(newReview);
+    const exec = (newReview, gameId, existUserToken) =>
+      request
+        .post(route + gameId)
+        .set("x-auth-token", existUserToken || token)
+        .send(newReview);
 
-    describe("/", () => {
+    describe("/:gameId", () => {
       test("if game for provided gameId does not exist, it will return 404", async () => {
-        const validReqBody = await getValidPOSTReqBody(token);
-        const res = await exec({
-          ...validReqBody,
-          gameId: new mongoose.Types.ObjectId(),
-        });
+        const { validNewGameParams } = await getValidPOSTReqBody(token);
+        const gameId = new mongoose.Types.ObjectId();
+        const res = await exec(validNewGameParams, gameId);
 
         expect(res.status).toBe(404);
       });
 
       test("if valid request, it will return 201", async () => {
-        const validReqBody = await getValidPOSTReqBody(token);
-        const res = await exec(validReqBody);
+        const { validNewGameParams, gameId } = await getValidPOSTReqBody(token);
+        const res = await exec(validNewGameParams, gameId);
 
         expect(res.status).toBe(201);
       });
 
       test("if document contain author property", async () => {
-        const validNewGameParams = await getValidPOSTReqBody();
-        const res = await exec(validNewGameParams);
+        const { validNewGameParams, gameId } = await getValidPOSTReqBody();
+        const res = await exec(validNewGameParams, gameId);
 
         const decodedJWT = decodeToken(token);
         const userProps = omit(decodedJWT, ["iat", "role"]);
 
         expect(res.body.author).toEqual(userProps);
+      });
+      test("if valid request, this reviewer should get +1 review to reviewCount", async () => {
+        const { userId } = await createNewUser();
+        const { token: existUserToken } = getUserToken(userId);
+        const { validNewGameParams, gameId } = await getValidPOSTReqBody();
+        await exec(validNewGameParams, gameId, existUserToken);
+
+        const reviewerInDb = await User.findById(userId);
+
+        expect(reviewerInDb.reviewsCount).toEqual(1);
       });
     });
   });
@@ -428,11 +442,10 @@ describe(route, () => {
 async function getValidPOSTReqBody() {
   const { gameId } = await createNewGame();
 
-  const validReqBody = {
-    gameId,
+  const validNewGameParams = {
     text: new Array(15).join("a"),
     gameScore: 7,
   };
 
-  return validReqBody;
+  return { validNewGameParams, gameId };
 }
