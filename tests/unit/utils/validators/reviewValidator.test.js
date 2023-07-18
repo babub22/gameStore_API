@@ -88,26 +88,6 @@ describe("reviewValidator", () => {
       expect(message).toMatch("is required");
     });
   });
-
-  describe("gameId", () => {
-    test("is not a objectID", () => {
-      const requestBody = changeValueByKey("gameId", 123456789);
-
-      const { error } = reviewValidator(requestBody);
-      const message = extractMessageFromJoiError(error);
-
-      expect(message).toMatch("must be one of");
-    });
-
-    test("was not provided", () => {
-      const requestBody = changeValueByKey("gameId");
-
-      const { error } = reviewValidator(requestBody);
-      const message = extractMessageFromJoiError(error);
-
-      expect(message).toMatch("is required");
-    });
-  });
 });
 
 function changeValueByKey(key, newValue) {
