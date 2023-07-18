@@ -1,5 +1,5 @@
-const app = require("../../../index");
-const request = require("supertest")(app);
+const server = require("../../../index");
+const request = require("supertest")(server);
 const { Review } = require("../../../models/review/review");
 const createNewGame = require("./utils/createNewGame");
 const getAdminToken = require("../../utils/getAdminToken");
@@ -12,10 +12,16 @@ const mongoose = require("mongoose");
 const { omit } = require("lodash");
 const decodeToken = require("../../../utils/decodeToken");
 const getHexedObjectId = require("../../../utils/getHexedObjectId");
+const dbDisconnection = require("../../../setup/dbDisconnection");
 
 const route = "/api/reviews/";
 
 describe(route, () => {
+  afterAll(() => {
+    dbDisconnection();
+    server.close();
+  });
+
   afterEach(async () => {
     await Review.deleteMany({});
     await Game.deleteMany({});
