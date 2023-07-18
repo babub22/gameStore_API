@@ -5,7 +5,7 @@ const changeRoleQueryValidator = require("../../../utils/validators/user/changeR
 describe("getMiddlewareParams", () => {
   test("if provided query valid, it will reun next() function", () => {
     const requestParams = {
-      query: { to: "Moderator" },
+      query: { role: "Moderator" },
     };
 
     const { next } = callMockedValidatorMiddleware(
@@ -19,7 +19,7 @@ describe("getMiddlewareParams", () => {
 
   test("if provided query has invalid key, it will return error message", () => {
     const requestParams = {
-      query: { role: "Admin" },
+      query: { to: "Admin" },
     };
 
     const { res } = callMockedValidatorMiddleware(
@@ -30,12 +30,12 @@ describe("getMiddlewareParams", () => {
 
     const responseMessage = res.send.mock.calls[0]?.[0];
 
-    expect(responseMessage).toMatch('"to" is required');
+    expect(responseMessage).toMatch('"role" is required');
   });
 
   test("if provided query has invalid value, it will return error", () => {
     const requestParams = {
-      query: { to: "Super user" },
+      query: { role: "Super user" },
     };
 
     const { res } = callMockedValidatorMiddleware(
