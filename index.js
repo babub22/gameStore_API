@@ -7,8 +7,8 @@ require("./setup/routes")(app);
 
 const PORT = process.env.PORT;
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   winston.info(`Running on port ${PORT}`);
 });
 
-module.exports = app;
+module.exports = server;
