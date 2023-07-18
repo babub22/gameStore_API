@@ -1,6 +1,6 @@
 const Joi = require("joi");
 
-function reviewPUTValidator(review) {
+function PUT_reviewValidator(review) {
   const schema = Joi.object({
     text: Joi.string().min(3).required(),
     gameScore: Joi.number().min(0).max(10).required(),
@@ -9,4 +9,4 @@ function reviewPUTValidator(review) {
   return schema.validate(review);
 }
 
-module.exports = reviewPUTValidator;
+module.exports = PUT_reviewValidator;

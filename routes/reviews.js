@@ -6,7 +6,7 @@ const auth = require("../middleware/auth");
 const { Game } = require("../models/game");
 const reviewValidator = require("../utils/validators/review/reviewValidator");
 const validateRequestBody = require("../middleware/validateRequestBody");
-const reviewPUTValidator = require("../utils/validators/review/PUTreviewValidator");
+const PUT_reviewValidator = require("../utils/validators/review/PUT_reviewValidator");
 
 router.get(
   "/game/:objectId",
@@ -59,7 +59,7 @@ router.put(
   [
     auth,
     validateRequestParams(objectIdValidator),
-    validateRequestBody(reviewPUTValidator),
+    validateRequestBody(PUT_reviewValidator),
   ],
   async (req, res) => {
     const { objectId: reviewId } = req.params;
