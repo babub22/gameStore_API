@@ -1,4 +1,6 @@
 const { User } = require("../../../../models/user/user");
+const dbDisconnection = require("../../../../setup/dbDisconnection");
+
 const {
   createNewUser,
   validUserData,
@@ -13,7 +15,7 @@ describe("User.validateSingup", () => {
     dbConnection();
   });
   afterAll(() => {
-    dbConnection();
+    dbDisconnection();
   });
 
   afterEach(async () => {
