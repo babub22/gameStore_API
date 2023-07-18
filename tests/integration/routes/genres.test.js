@@ -1,14 +1,20 @@
 const mongoose = require("mongoose");
-const app = require("../../../index");
-const request = require("supertest")(app);
+const server = require("../../../index");
+const request = require("supertest")(server);
 const { Genre } = require("../../../models/genre");
 const getUserToken = require("../../utils/getUserToken");
 const getAdminToken = require("../../utils/getAdminToken");
 const createNewGenre = require("./utils/createNewGenre");
+const dbDisconnection = require("../../../setup/dbDisconnection");
 
 const route = "/api/genres/";
 
 describe(route, () => {
+  afterAll(() => {
+    dbDisconnection();
+    server.close();
+  });
+
   afterEach(async () => {
     await Genre.deleteMany({});
   });
