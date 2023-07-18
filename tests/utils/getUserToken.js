@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 const { User } = require("../../models/user/user");
 
-function getUserToken() {
+function getUserToken(userId) {
   const objectId = new mongoose.Types.ObjectId();
 
   const token = new User({
-    _id: objectId,
+    _id: userId || objectId,
     name: "Vlad",
     isReviewer: false,
   }).generateAuthToken();
