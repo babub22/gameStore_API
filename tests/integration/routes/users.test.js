@@ -1,16 +1,22 @@
 const { User } = require("../../../models/user/user");
-const app = require("../../../index");
+const server = require("../../../index");
 const { omit } = require("lodash");
 const decodeToken = require("../../../utils/decodeToken");
 const getHexedObjectId = require("../../../utils/getHexedObjectId");
 const getUserToken = require("../../utils/getUserToken");
 const getAdminToken = require("../../utils/getAdminToken");
 const { createNewUser, validUserData } = require("./utils/createNewUser");
-const request = require("supertest")(app);
+const request = require("supertest")(server);
+const dbDisconnection = require("../../../setup/dbDisconnection");
 
 const route = "/api/users/";
 
 describe(route, () => {
+  afterAll(() => {
+    dbDisconnection();
+    server.close();
+  });
+
   afterEach(async () => {
     await User.deleteMany({});
   });
