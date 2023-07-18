@@ -23,9 +23,6 @@ module.exports = async function ({ userId, currentUser, reason }) {
     return result;
   }
 
-  result = getResultObject(true, {
-    isValidRequest: true,
-    user,
-  });
+  result = getResultObject(true, user);
   return result;
 };
