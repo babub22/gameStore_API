@@ -4,6 +4,7 @@ const validateSignin = require("./statics/validateSignin");
 const validateSingup = require("./statics/validateSingup");
 const generateAuthToken = require("./methods/generateAuthToken");
 const blockUserById = require("./statics/blockUserById");
+const changeRoleById = require("./statics/changeRoleById");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -46,6 +47,7 @@ userSchema.methods.generateAuthToken = generateAuthToken;
 userSchema.statics.blockUserById = blockUserById;
 userSchema.statics.validateSignin = validateSignin;
 userSchema.statics.validateSingup = validateSingup;
+userSchema.statics.changeRoleById = changeRoleById;
 
 const User = mongoose.model("User", userSchema);
 
