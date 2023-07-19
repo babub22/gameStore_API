@@ -12,6 +12,8 @@ const validateRequestQuery = require("../middleware/validateRequestQuery");
 const GETAllUsersQueryValidator = require("../utils/validators/user/GET_allUsersQueryValidator");
 const admin = require("../middleware/admin");
 const changeRoleQueryValidator = require("../utils/validators/user/changeRoleQueryValidator");
+const USER_DOES_NOT_EXIST = require("../utils/responseMessages/USER_DOES_NOT_EXIST");
+const { omit } = require("lodash");
 
 const router = express.Router();
 
@@ -44,6 +46,22 @@ router.get(
     }
 
     res.send(sortedUsers);
+  }
+);
+
+router.get(
+  "/:objectId",
+  [validateRequestParams(objectIdValidator)],
+  async (req, res) => {
+    const { objectId: userId } = req.params;
+
+    const user = await User.findById(userId, { lean: true });
+
+    if (!user) {
+      return res.status(404).send(USER_DOES_NOT_EXIST);
+    }
+
+    res.send(omit(user, ["password"]));
   }
 );
 
@@ -91,7 +109,7 @@ router.put(
     const { objectId: userId } = req.params;
     const { reason } = req.body;
     const currentUser = req.user;
-    
+
     const { isValidRequest, resultBody } = await User.blockUserById({
       userId,
       reason,
