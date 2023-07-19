@@ -7,9 +7,9 @@ const validUserData = {
   password: "1234",
 };
 
-async function createNewUser() {
-  const hashedPassword = await getHashedString(validUserData.password);
-  const newUser = new User({ ...validUserData, password: hashedPassword });
+async function createNewUser(userData = validUserData) {
+  const hashedPassword = await getHashedString(userData.password);
+  const newUser = new User({ ...userData, password: hashedPassword });
 
   await newUser.save();
 
