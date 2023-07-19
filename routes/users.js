@@ -8,6 +8,9 @@ const moderator = require("../middleware/moderator");
 const validateRequestParams = require("../middleware/validateRequestParams");
 const objectIdValidator = require("../utils/validators/objectIdValidator");
 const blockingInfoValidator = require("../utils/validators/user/blockingInfoValidator");
+const validateRequestQuery = require("../middleware/validateRequestQuery");
+const admin = require("../middleware/admin");
+const changeRoleQueryValidator = require("../utils/validators/user/changeRoleQueryValidator");
 
 const router = express.Router();
 
@@ -55,11 +58,37 @@ router.put(
     const { objectId: userId } = req.params;
     const { reason } = req.body;
     const currentUser = req.user;
-    
+
     const { isValidRequest, resultBody } = await User.blockUserById({
       userId,
       reason,
       currentUser,
+    });
+
+    if (!isValidRequest) {
+      const { message, status } = resultBody;
+      return res.status(status).send(message);
+    }
+
+    res.send(resultBody);
+  }
+);
+
+router.put(
+  "/:objectId/changeRole",
+  [
+    auth,
+    admin,
+    validateRequestParams(objectIdValidator),
+    validateRequestQuery(changeRoleQueryValidator),
+  ],
+  async (req, res) => {
+    const { objectId: userId } = req.params;
+    const { role: newRole } = req.query;
+
+    const { isValidRequest, resultBody } = await User.changeRoleById({
+      userId,
+      newRole,
     });
 
     if (!isValidRequest) {
