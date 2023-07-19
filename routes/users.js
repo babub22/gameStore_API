@@ -43,17 +43,19 @@ router.post(
   }
 );
 
-router.post(
+router.put(
   "/:objectId/block",
-  auth,
-  moderator,
-  validateRequestBody(blockingInfoValidator),
-  validateRequestParams(objectIdValidator),
+  [
+    auth,
+    moderator,
+    validateRequestBody(blockingInfoValidator),
+    validateRequestParams(objectIdValidator),
+  ],
   async (req, res) => {
     const { objectId: userId } = req.params;
     const { reason } = req.body;
     const currentUser = req.user;
-
+    
     const { isValidRequest, resultBody } = await User.blockUserById({
       userId,
       reason,
