@@ -1,45 +1,52 @@
 const compareHashedStrings = require("../../../utils/bcrypt/compareHashedStrings");
-const getResultObject = require("../../../utils/getResultObject");
+const getResultLikeResponseObject = require("../../../utils/getResultLikeResponseObject");
+const INVALID_PASSWORD = require("../../../utils/responseObjects/users/INVALID_PASSWORD");
+const USER_WITH_THIS_MAIL_DOES_NOT_EXISTS = require("../../../utils/responseObjects/users/USER_WITH_THIS_MAIL_DOES_NOT_EXISTS");
+const YOU_HAVE_BEEN_BLOCKED_BY = require("../../../utils/responseObjects/users/YOU_HAVE_BEEN_BLOCKED_BY");
 
-module.exports = async function ({ password, email }) {
+module.exports = async function ({ password: newPassword, email }) {
   const user = await this.findOne({ email });
-  let result;
 
-  if (!user) {
-    result = getResultObject(false, {
-      status: 404,
-      message: "User with this mail doesnt exist!",
+  const errorObject = await validateUser(user, newPassword);
+
+  if (errorObject) {
+    return await getResultLikeResponseObject({
+      errorObject,
     });
+  }
 
-    return result;
+  const token = await user.generateAuthToken();
+
+  return await getResultLikeResponseObject({
+    result: { token, name: user.name },
+  });
+};
+
+async function validateUser(user, newPassword) {
+  if (!user) {
+    return USER_WITH_THIS_MAIL_DOES_NOT_EXISTS;
   }
 
   const isBlockedUser = user.userStatus.status === "Blocked";
 
   if (isBlockedUser) {
-    const { blockedBy } = user.userStatus.blockingInfo;
+    const {
+      blockedBy: { _name },
+    } = user.userStatus.blockingInfo;
 
-    result = getResultObject(false, {
-      status: 403,
-      message: `You have been blocked by ${blockedBy.name}, you can no longer sing in to your account!`,
-    });
-
-    return result;
+    return YOU_HAVE_BEEN_BLOCKED_BY;
+    // TODO: сделать что то с этим YOU HAVE BEEN BLOCKED и this.name в нем
+    // мб конструктор который будет принимать name через Constructor.prototype.name = name
   }
 
-  const isValidPassword = await compareHashedStrings(password, user.password);
+  const isValidPassword = await compareHashedStrings(
+    newPassword,
+    user.password
+  );
 
   if (!isValidPassword) {
-    result = getResultObject(false, {
-      status: 404,
-      message: "Password is wrong!",
-    });
-
-    return result;
+    return INVALID_PASSWORD;
   }
 
-  const token = await user.generateAuthToken();
-
-  result = getResultObject(true, { token, name: user.name });
-  return result;
-};
+  return null;
+}
