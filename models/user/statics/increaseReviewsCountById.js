@@ -1,5 +1,5 @@
-// const { User } = require("../user");
 const getResultObject = require("../../../utils/getResultObject");
+const USER_DOES_NOT_EXIST = require("../../../utils/responseMessages/USER_DOES_NOT_EXIST");
 
 module.exports = async function ({ userId: userId, reviewsNumber = 1 }) {
   const user = await this.findOneAndUpdate(
@@ -15,7 +15,7 @@ module.exports = async function ({ userId: userId, reviewsNumber = 1 }) {
   if (!user) {
     result = getResultObject(false, {
       status: 404,
-      message: "This user doesnt exist!",
+      message: USER_DOES_NOT_EXIST,
     });
 
     return result;
