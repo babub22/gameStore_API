@@ -8,6 +8,7 @@ const reviewValidator = require("../utils/validators/review/reviewValidator");
 const validateRequestBody = require("../middleware/validateRequestBody");
 const PUT_reviewValidator = require("../utils/validators/review/PUT_reviewValidator");
 const { User } = require("../models/user/user");
+const REVIEW_DOES_NOT_EXIST = require("../utils/responseMessages/REVIEW_DOES_NOT_EXIST");
 
 router.get(
   "/game/:objectId",
@@ -122,7 +123,7 @@ router.post(
     const review = await Review.findById(reviewId);
 
     if (!review) {
-      return res.status(404).send("This review does not exist!");
+      return res.status(404).send(REVIEW_DOES_NOT_EXIST);
     }
 
     const { user } = req;
@@ -149,7 +150,7 @@ router.post(
     const review = await Review.findById(reviewId);
 
     if (!review) {
-      return res.status(404).send("This review does not exist!");
+      return res.status(404).send(REVIEW_DOES_NOT_EXIST);
     }
 
     const { user } = req;
