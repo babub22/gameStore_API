@@ -3,12 +3,10 @@ const server = require("../../../index");
 const { omit } = require("lodash");
 const decodeToken = require("../../../utils/decodeToken");
 const getHexedObjectId = require("../../../utils/getHexedObjectId");
-const getUserToken = require("../../utils/getUserToken");
 const getAdminToken = require("../../utils/getAdminToken");
 const { createNewUser, validUserData } = require("./utils/createNewUser");
 const request = require("supertest")(server);
 const dbDisconnection = require("../../../setup/dbDisconnection");
-
 const route = "/api/users/";
 
 describe(route, () => {
@@ -114,6 +112,7 @@ describe(route, () => {
         expect(res.status).toBe(403);
       });
     });
+  });
 
   describe("PUT", () => {
     describe("/:userId/block", () => {
@@ -177,6 +176,39 @@ describe(route, () => {
         expect(
           blockedUserInDB.userStatus.blockingInfo.blockedBy._id.toHexString()
         ).toEqual(adminUserId);
+      });
+    });
+
+    describe("/:objectId/changeRole", () => {
+      const { token: adminToken } = getAdminToken();
+
+      const exec = (userId, role) =>
+        request
+          .put(route + userId + "/changeRole" + "?role=" + role)
+          .set("x-auth-token", adminToken);
+
+      test("if user for probided usedId doenst exist,it will return 404", async () => {
+        const userId = getHexedObjectId();
+
+        const res = await exec(userId, "Moderator");
+
+        expect(res.status).toEqual(404);
+      });
+      test("if valid request, it will return 200", async () => {
+        const { userId } = await createNewUser();
+
+        const res = await exec(userId, "Moderator");
+
+        expect(res.status).toEqual(200);
+      });
+      test("if user role has been changed", async () => {
+        const { userId } = await createNewUser();
+
+        await exec(userId, "Moderator");
+
+        const userInDB = await User.findById(userId);
+
+        expect(userInDB.role).toEqual("Moderator");
       });
     });
   });
