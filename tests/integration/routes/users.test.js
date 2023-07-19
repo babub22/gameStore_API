@@ -115,13 +115,14 @@ describe(route, () => {
       });
     });
 
+  describe("PUT", () => {
     describe("/:userId/block", () => {
       const { token: adminToken, objectId: adminUserId } = getAdminToken();
       const blockingReason = { reason: "Test test" };
 
       const exec = (userId, blockingReason) =>
         request
-          .post(route + userId + "/block")
+          .put(route + userId + "/block")
           .send(blockingReason)
           .set("x-auth-token", adminToken);
 
@@ -133,24 +134,21 @@ describe(route, () => {
         expect(res.status).toBe(404);
       });
       test("if blocking reason was not provided, it will return 400", async () => {
-        const { token } = getUserToken();
-        const { userId } = await createNewUser(token);
+        const { userId } = await createNewUser();
 
         const res = await exec(userId);
 
         expect(res.status).toBe(400);
       });
       test("if user succefully blocked, it will return 200", async () => {
-        const { token } = getUserToken();
-        const { userId } = await createNewUser(token);
+        const { userId } = await createNewUser();
 
         const res = await exec(userId, blockingReason);
 
         expect(res.status).toBe(200);
       });
       test('if user succefully blocked, it will set "Blocked" value to userStatus', async () => {
-        const { token } = getUserToken();
-        const { userId } = await createNewUser(token);
+        const { userId } = await createNewUser();
 
         await exec(userId, blockingReason);
 
@@ -159,8 +157,7 @@ describe(route, () => {
         expect(blockedUserInDB.userStatus.status).toEqual("Blocked");
       });
       test('if user succefully blocked, it will set "blockingInfo" propery', async () => {
-        const { token } = getUserToken();
-        const { userId } = await createNewUser(token);
+        const { userId } = await createNewUser();
 
         await exec(userId, blockingReason);
 
@@ -171,8 +168,7 @@ describe(route, () => {
         );
       });
       test('if "blockedBy" property equal to adminUser', async () => {
-        const { token } = getUserToken();
-        const { userId } = await createNewUser(token);
+        const { userId } = await createNewUser();
 
         await exec(userId, blockingReason);
 
