@@ -1,6 +1,6 @@
 const express = require("express");
 const genres = require("../routes/genres");
-const users = require("../routes/users");
+const users = require("../routes/users/users");
 const developers = require("../routes/developers");
 const games = require("../routes/games");
 const reviews = require("../routes/reviews");
