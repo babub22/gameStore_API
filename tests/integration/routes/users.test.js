@@ -218,6 +218,39 @@ describe(route, () => {
   });
 
   describe("GET", () => {
+    describe("/:userId", () => {
+      const exec = (userId) => request.get(route + userId);
+
+      test("if user doesnt exist, it will return 404", async () => {
+        const userId = getHexedObjectId();
+
+        const res = await exec(userId);
+
+        expect(res.status).toEqual(404);
+      });
+      test("if valid request, it will return 200", async () => {
+        const { userId } = await createNewUser();
+
+        const res = await exec(userId);
+
+        expect(res.status).toEqual(200);
+      });
+      test("if valid request, it will return user information", async () => {
+        const { userId } = await createNewUser();
+
+        const res = await exec(userId);
+
+        expect(res.body._id).toEqual(userId);
+      });
+      test("if it wont return user password property", async () => {
+        const { userId } = await createNewUser();
+
+        const res = await exec(userId);
+
+        expect(res.body.password).toBeUndefined();
+      });
+    });
+
     describe("/", () => {
       const { token: userToken } = getUserToken();
 
