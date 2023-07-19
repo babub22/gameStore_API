@@ -22,6 +22,9 @@ describe(route, () => {
   afterEach(async () => {
     await User.deleteMany({});
   });
+  beforeEach(async () => {
+    await User.deleteMany({});
+  });
 
   describe("POST /", () => {
     const singUpRoute = route + "singup";
@@ -74,12 +77,12 @@ describe(route, () => {
 
         expect(res.status).toBe(404);
       });
-      test("if user entered an incorrect password, it will return 404", async () => {
+      test("if user entered an incorrect password, it will return 401", async () => {
         await createNewUser();
 
         const res = await exec({ ...validLoginData, password: "54321" });
 
-        expect(res.status).toBe(404);
+        expect(res.status).toBe(401);
       });
 
       test("if email and password valid, it will return 200", async () => {
