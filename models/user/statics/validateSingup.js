@@ -1,36 +1,38 @@
-const { pick } = require("lodash");
+const { omit } = require("lodash");
 const getHashedString = require("../../../utils/bcrypt/getHashedString");
-const getResultObject = require("../../../utils/getResultObject");
+const getResultLikeResponseObject = require("../../../utils/getResultLikeResponseObject");
+const THIS_USER_ALREADY_EXISTS = require("../../../utils/responseObjects/users/THIS_USER_ALREADY_EXISTS");
 
-module.exports = async function (singupData) {
-  const { email, password } = singupData;
-  let result;
+module.exports = async function ({ email, password, ...args }) {
+  const isUserExist = await this.findOne({ email });
 
-  const user = await this.findOne({ email });
-
-  if (user) {
-    result = getResultObject(false, {
-      status: 400,
-      message: "This user already exist!",
+  if (isUserExist) {
+    return getResultLikeResponseObject({
+      errorObject: THIS_USER_ALREADY_EXISTS,
     });
-
-    return result;
   }
 
   const hashedPassword = await getHashedString(password);
 
   const newUser = new this({
-    ...singupData,
+    ...args,
+    email,
     password: hashedPassword,
   });
 
-  await newUser.save();
+  async function saveNewUser() {
+    await newUser.save();
+  }
 
   const token = newUser.generateAuthToken();
 
-  result = getResultObject(true, {
-    token,
-    newUser: pick(newUser, ["_id", "name", "email"]),
+  const createdUser = omit(newUser, ["password"]);
+
+  return getResultLikeResponseObject({
+    result: {
+      newUser: createdUser,
+      token,
+    },
+    fn: saveNewUser,
   });
-  return result;
 };
