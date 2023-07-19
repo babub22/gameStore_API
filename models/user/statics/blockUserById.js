@@ -1,10 +1,8 @@
-const getResultObject = require("../../../utils/getResultObject");
-const USER_DOES_NOT_EXIST = require("../../../utils/responseMessages/USER_DOES_NOT_EXIST");
+const getResultLikeResponseObject = require("../../../utils/getResultLikeResponseObject");
+const USER_DOES_NOT_EXISTS = require("../../../utils/responseObjects/users/USER_DOES_NOT_EXISTS");
 
 module.exports = async function ({ userId, currentUser, reason }) {
-  let result;
-
-  const user = await this.findByIdAndUpdate(
+  const blockedUser = await this.findByIdAndUpdate(
     userId,
     {
       userStatus: {
@@ -15,15 +13,8 @@ module.exports = async function ({ userId, currentUser, reason }) {
     { new: true }
   );
 
-  if (!user) {
-    result = getResultObject(false, {
-      status: 404,
-      message: USER_DOES_NOT_EXIST,
-    });
-
-    return result;
-  }
-
-  result = getResultObject(true, user);
-  return result;
+  return getResultLikeResponseObject({
+    result: blockedUser,
+    errorObject: USER_DOES_NOT_EXISTS,
+  });
 };
