@@ -55,8 +55,8 @@ router.post(
 
     await newReview.save();
 
-    await User.findByIdAndUpdate(newReview.author._id, {
-      $inc: { reviewsCount: 1 },
+    await User.increaseReviewsCountById({
+      userId: req.user._id,
     });
 
     res.status(201).send(newReview);
