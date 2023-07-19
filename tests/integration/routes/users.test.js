@@ -1,12 +1,16 @@
 const { User } = require("../../../models/user/user");
 const server = require("../../../index");
-const { omit } = require("lodash");
+const { omit, isEqual } = require("lodash");
 const decodeToken = require("../../../utils/decodeToken");
 const getHexedObjectId = require("../../../utils/getHexedObjectId");
+const getUserToken = require("../../utils/getUserToken");
 const getAdminToken = require("../../utils/getAdminToken");
 const { createNewUser, validUserData } = require("./utils/createNewUser");
 const request = require("supertest")(server);
 const dbDisconnection = require("../../../setup/dbDisconnection");
+const createTenUsers = require("./utils/createTenUsers");
+const getArrayOfUsersIdsFromResponse = require("./utils/getArrayOfUsersIdsFromResponse");
+
 const route = "/api/users/";
 
 describe(route, () => {
@@ -209,6 +213,203 @@ describe(route, () => {
         const userInDB = await User.findById(userId);
 
         expect(userInDB.role).toEqual("Moderator");
+      });
+    });
+  });
+
+  describe("GET", () => {
+    describe("/", () => {
+      const { token: userToken } = getUserToken();
+
+      const exec = () => request.get(`${route}`).set("x-auth-token", userToken);
+
+      test("if valid request, it wil return 200", async () => {
+        await createTenUsers();
+
+        const res = await exec();
+
+        expect(res.status).toEqual(200);
+      });
+      test("if returned array contains 9 users", async () => {
+        const users = await createTenUsers();
+
+        const res = await exec();
+
+        const createdUsersIds = users
+          .filter((user) => user.userStatus.status === "Active")
+          .map((user) => user._id.toHexString());
+
+        const responseUsersIds = getArrayOfUsersIdsFromResponse(res);
+
+        expect(isEqual(responseUsersIds, createdUsersIds)).toEqual(true);
+      });
+
+      describe("?sortBy=name&limit=3&role=User", () => {
+        const exec = () =>
+          request
+            .get(`${route}?sortBy=name&limit=3&role=User`)
+            .set("x-auth-token", userToken);
+
+        test("if valid request, it wil return 200", async () => {
+          await createTenUsers();
+
+          const res = await exec();
+
+          expect(res.status).toEqual(200);
+        });
+        test("if returned array has only users with role 'User' and status 'Active' and limited to 3", async () => {
+          const users = await createTenUsers();
+
+          const res = await exec();
+
+          const createdUsersIds = users
+            .filter(
+              (user) =>
+                user.role === "User" && user.userStatus.status === "Active"
+            )
+            .sort()
+            .map((user) => user._id.toHexString());
+
+          createdUsersIds.length = 3;
+
+          const responseUsersIds = getArrayOfUsersIdsFromResponse(res);
+
+          expect(isEqual(responseUsersIds, createdUsersIds)).toEqual(true);
+        });
+      });
+
+      describe("?sortBy=", () => {
+        const exec = (sort) =>
+          request.get(`${route}?sortBy=${sort}`).set("x-auth-token", userToken);
+
+        test("name, it will return users in alphabetical order", async () => {
+          const users = await createTenUsers();
+
+          const res = await exec("name");
+
+          const createdUsersIds = users
+            .sort()
+            .filter((user) => user.userStatus.status === "Active")
+            .map((user) => user._id.toHexString());
+
+          const responseUsersIds = getArrayOfUsersIdsFromResponse(res);
+
+          expect(isEqual(responseUsersIds, createdUsersIds)).toEqual(true);
+        });
+        test("role, it will return users in order from admin to user", async () => {
+          const users = await createTenUsers();
+
+          const res = await exec("role");
+
+          const createdUsersIds = users
+            .filter((user) => user.userStatus.status === "Active")
+            .sort((a, b) => a.role.localeCompare(b.role))
+            .map((user) => user._id.toHexString());
+
+          const responseUsersIds = getArrayOfUsersIdsFromResponse(res);
+
+          expect(isEqual(responseUsersIds, createdUsersIds)).toEqual(true);
+        });
+        test("reviewsCount, it will return from user with most reviewsCount to lowest ", async () => {
+          const users = await createTenUsers();
+
+          const res = await exec("reviewsCount");
+
+          const createdUsersIds = users
+            .filter((user) => user.userStatus.status === "Active")
+            .sort((a, b) => b.reviewsCount - a.reviewsCount)
+            .map((user) => user._id.toHexString());
+
+          const responseUsersIds = getArrayOfUsersIdsFromResponse(res);
+
+          expect(isEqual(responseUsersIds, createdUsersIds)).toEqual(true);
+        });
+      });
+      describe("?limit=", () => {
+        const exec = (limit) =>
+          request.get(`${route}?limit=${limit}`).set("x-auth-token", userToken);
+
+        test("2, it will return two users", async () => {
+          await createTenUsers();
+
+          const res = await exec(2);
+
+          expect(res.body).toHaveLength(2);
+        });
+        test("9, it will return 8 users", async () => {
+          await createTenUsers();
+
+          const res = await exec(8);
+
+          expect(res.body).toHaveLength(8);
+        });
+      });
+      describe("?role=", () => {
+        const exec = (role) =>
+          request.get(`${route}?role=${role}`).set("x-auth-token", userToken);
+
+        test("admins, it will display only admins", async () => {
+          const users = await createTenUsers();
+
+          const res = await exec("Admin");
+
+          const createdUsersIds = users
+            .filter(
+              (user) =>
+                user.role === "Admin" && user.userStatus.status === "Active"
+            )
+            .map((user) => user._id.toHexString());
+
+          const responseUsersIds = getArrayOfUsersIdsFromResponse(res);
+
+          expect(isEqual(responseUsersIds, createdUsersIds)).toEqual(true);
+        });
+        test("reviewers, it will display only users with reviewer status", async () => {
+          const users = await createTenUsers();
+
+          const res = await exec("Reviewer");
+
+          const createdUsersIds = users
+            .filter(
+              (user) => user.isReviewer && user.userStatus.status === "Active"
+            )
+            .map((user) => user._id.toHexString());
+
+          const responseUsersIds = getArrayOfUsersIdsFromResponse(res);
+
+          expect(isEqual(responseUsersIds, createdUsersIds)).toEqual(true);
+        });
+        test("moderators, it will display only moderators", async () => {
+          const users = await createTenUsers();
+
+          const res = await exec("Moderator");
+
+          const createdUsersIds = users
+            .filter(
+              (user) =>
+                user.role === "Moderator" && user.userStatus.status === "Active"
+            )
+            .map((user) => user._id.toHexString());
+          const responseUsersIds = getArrayOfUsersIdsFromResponse(res);
+
+          expect(isEqual(responseUsersIds, createdUsersIds)).toEqual(true);
+        });
+        test("users, it will display only users", async () => {
+          const users = await createTenUsers();
+
+          const res = await exec("User");
+
+          const createdUsersIds = users
+            .filter(
+              (user) =>
+                user.role === "User" && user.userStatus.status === "Active"
+            )
+            .map((user) => user._id.toHexString());
+
+          const responseUsersIds = getArrayOfUsersIdsFromResponse(res);
+
+          expect(isEqual(responseUsersIds, createdUsersIds)).toEqual(true);
+        });
       });
     });
   });
