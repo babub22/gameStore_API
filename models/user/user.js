@@ -5,6 +5,7 @@ const validateSingup = require("./statics/validateSingup");
 const generateAuthToken = require("./methods/generateAuthToken");
 const blockUserById = require("./statics/blockUserById");
 const changeRoleById = require("./statics/changeRoleById");
+const increaseReviewsCountById = require("./statics/increaseReviewsCountById");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -27,6 +28,7 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: ["User", "Moderator", "Admin"],
+    default: "User",
   },
   reviewsCount: {
     type: Number,
@@ -34,10 +36,6 @@ const userSchema = new mongoose.Schema({
   },
   isReviewer: {
     type: Boolean,
-    default: function () {
-      return this.reviewsCount >= 30;
-    },
-    require: true,
   },
   userStatus: { type: userStatusSchema, default: { userStatusSchema } },
 });
@@ -48,6 +46,7 @@ userSchema.statics.blockUserById = blockUserById;
 userSchema.statics.validateSignin = validateSignin;
 userSchema.statics.validateSingup = validateSingup;
 userSchema.statics.changeRoleById = changeRoleById;
+userSchema.statics.increaseReviewsCountById = increaseReviewsCountById;
 
 const User = mongoose.model("User", userSchema);
 
