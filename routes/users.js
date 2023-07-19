@@ -9,10 +9,43 @@ const validateRequestParams = require("../middleware/validateRequestParams");
 const objectIdValidator = require("../utils/validators/objectIdValidator");
 const blockingInfoValidator = require("../utils/validators/user/blockingInfoValidator");
 const validateRequestQuery = require("../middleware/validateRequestQuery");
+const GETAllUsersQueryValidator = require("../utils/validators/user/GET_allUsersQueryValidator");
 const admin = require("../middleware/admin");
 const changeRoleQueryValidator = require("../utils/validators/user/changeRoleQueryValidator");
 
 const router = express.Router();
+
+router.get(
+  "/",
+  [auth, validateRequestQuery(GETAllUsersQueryValidator)],
+  async (req, res) => {
+    const { sortBy, limit, role } = req.query;
+
+    let query = {
+      "userStatus.status": "Active",
+    };
+
+    if (role === "Reviewer") {
+      query.isReviewer = true;
+    } else if (role) {
+      query.role = role;
+    }
+
+    let sortedUsers;
+
+    if (sortBy === "reviewsCount") {
+      sortedUsers = await User.find(query)
+        .limit(Number(limit))
+        .sort(`-${sortBy}`);
+    } else {
+      sortedUsers = await User.find(query)
+        .limit(Number(limit))
+        .sort(`${sortBy}`);
+    }
+
+    res.send(sortedUsers);
+  }
+);
 
 router.post(
   "/singup",
@@ -58,7 +91,7 @@ router.put(
     const { objectId: userId } = req.params;
     const { reason } = req.body;
     const currentUser = req.user;
-
+    
     const { isValidRequest, resultBody } = await User.blockUserById({
       userId,
       reason,
