@@ -15,7 +15,7 @@ const getHexedObjectId = require("../../../utils/getHexedObjectId");
 const { User } = require("../../../models/user/user");
 const { createNewUser } = require("./utils/createNewUser");
 const dbDisconnection = require("../../../setup/dbDisconnection");
-const REVIEW_DOES_NOT_EXIST = require("../../../utils/responseMessages/REVIEW_DOES_NOT_EXIST");
+const REVIEW_DOES_NOT_EXISTS = require("../../../utils/responseObjects/reviews/REVIEW_DOES_NOT_EXISTS");
 
 const route = "/api/reviews/";
 
@@ -248,7 +248,7 @@ describe(route, () => {
       );
       expect(response).toMatchObject({
         status: 404,
-        message: REVIEW_DOES_NOT_EXIST,
+        message: REVIEW_DOES_NOT_EXISTS,
       });
     });
 
