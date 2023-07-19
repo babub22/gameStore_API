@@ -6,7 +6,7 @@ module.exports = function () {
     {
       _id: this._id,
       name: this.name,
-      role: this.role ?? "User",
+      role: this.role,
       isReviewer: this.isReviewer,
     },
     config.get("jwtPrivateKey")
