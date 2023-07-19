@@ -3,6 +3,7 @@ const isAdminOrModeratorRole = require("../../utils/isAdminOrModeratorRole");
 const { isEqual } = require("lodash");
 const likeSchema = require("./likeSchema");
 const dislikeSchema = require("./dislikeSchema");
+const REVIEW_DOES_NOT_EXIST = require("../../utils/responseMessages/REVIEW_DOES_NOT_EXIST");
 
 const reviewSchema = new mongoose.Schema({
   game: {
@@ -67,7 +68,7 @@ reviewSchema.statics.checkIfProvidedUserWroteThisReview = async function (
   const review = await this.findById(reviewId);
 
   if (!review) {
-    return { status: 404, message: "This review does not exist!" };
+    return { status: 404, message: REVIEW_DOES_NOT_EXIST };
   }
 
   const isUserRole = !isAdminOrModeratorRole(user.role);
