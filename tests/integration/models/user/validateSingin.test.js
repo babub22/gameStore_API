@@ -46,7 +46,7 @@ describe("User.validateSignin", () => {
 
     expect(status).toEqual(403);
   });
-  test("if password is invalid, it will return 404", async () => {
+  test("if password is invalid, it will return 401", async () => {
     await createNewUser();
 
     const { resultBody } = await User.validateSignin({
@@ -55,7 +55,7 @@ describe("User.validateSignin", () => {
     });
     const { status } = resultBody;
 
-    expect(status).toEqual(404);
+    expect(status).toEqual(401);
   });
   test("if valid request, it will return token", async () => {
     await createNewUser();
