@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const increaseLikesByOne = require("./methods/increaseLikesByOne");
+const decreaseLikesByOne = require("./methods/decreaseLikesByOne");
 
 const likedUsersSchema = new mongoose.Schema({
   name: {
@@ -22,17 +24,8 @@ const likeSchema = new mongoose.Schema({
   },
 });
 
-likeSchema.methods.increaseLikesByOne = function (user) {
-  this.likesCount += 1;
-  this.likedUsers.push(user);
-};
-
-likeSchema.methods.decreaseLikesByOne = function (user) {
-  this.likesCount -= 1;
-  this.likedUsers.filter(
-    (likedUser) => likedUser._id.toHexString() === user._id
-  );
-};
+likeSchema.methods.increaseLikesByOne = increaseLikesByOne;
+likeSchema.methods.decreaseLikesByOne = decreaseLikesByOne;
 
 likeSchema.methods.checkIfThisUserAlreadyPutLike = function (user) {
   const isThisUserAlredyPutLike = this.likedUsers.find(
