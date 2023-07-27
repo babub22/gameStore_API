@@ -15,7 +15,7 @@ async function getAllUsers(req, res) {
     query.find.role = role;
   }
 
-  const sortedUsers = await User.findUsersAndSortByQuery({query});
+  const sortedUsers = await User.findUsersAndSortByQuery({ query });
 
   res.send(sortedUsers);
 }
