@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
-const isAdminOrModeratorRole = require("../../utils/isAdminOrModeratorRole");
-const { isEqual } = require("lodash");
 const likeSchema = require("./likeSchema");
 const dislikeSchema = require("./dislikeSchema");
-const REVIEW_DOES_NOT_EXISTS = require("../../utils/responseObjects/reviews/REVIEW_DOES_NOT_EXISTS");
+const getReviewsByGameId = require("./statics/getReviewsByGameId");
+const getReviewsByAuthorId = require("./statics/getReviewsByAuthorId");
+const checkIfProvidedUserWroteThisReview = require("./statics/checkIfProvidedUserWroteThisReview");
+const createNewReview = require("./statics/createNewReview");
 
 const reviewSchema = new mongoose.Schema({
   game: {
@@ -49,42 +50,11 @@ const reviewSchema = new mongoose.Schema({
   dislikes: { type: dislikeSchema, default: { dislikeSchema } },
 });
 
-reviewSchema.statics.getReviewsByGameId = function (gameId) {
-  return this.find({
-    "game._id": gameId,
-  });
-};
-
-reviewSchema.statics.getReviewsByAuthorId = function (gameId) {
-  return this.find({
-    "author._id": gameId,
-  });
-};
-
-reviewSchema.statics.checkIfProvidedUserWroteThisReview = async function (
-  reviewId,
-  user
-) {
-  const review = await this.findById(reviewId);
-
-  if (!review) {
-    return { status: 404, message: REVIEW_DOES_NOT_EXISTS };
-  }
-
-  const isUserRole = !isAdminOrModeratorRole(user.role);
-
-  const authorId = review.author._id.toHexString();
-  const { _id: userId } = user;
-
-  const isSameAuthorAndUserInRequest = isEqual(authorId, userId);
-
-  if (!isSameAuthorAndUserInRequest && isUserRole) {
-    return {
-      status: 403,
-      message: "You dont have permission to change this review!",
-    };
-  }
-};
+reviewSchema.statics.getReviewsByGameId = getReviewsByGameId;
+reviewSchema.statics.getReviewsByAuthorId = getReviewsByAuthorId;
+reviewSchema.statics.checkIfProvidedUserWroteThisReview =
+  checkIfProvidedUserWroteThisReview;
+reviewSchema.statics.createNewReview = createNewReview;
 
 const Review = mongoose.model("Review", reviewSchema);
 
