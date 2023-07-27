@@ -2,7 +2,11 @@ function getResultObject(isValidRequest, resultBody) {
   return { isValidRequest, resultBody };
 }
 
-async function getResultLikeResponseObject({ result: methodResult, errorObject, fn }) {
+async function getResultLikeResponseObject({
+  result: methodResult,
+  errorObject,
+  fn,
+}) {
   if (!methodResult) {
     return getResultObject(false, errorObject);
   }
