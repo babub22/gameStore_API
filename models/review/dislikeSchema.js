@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const increaseDislikesByOne = require("./methods/increaseDislikesByOne");
+const decreaseDislikesByOne = require("./methods/decreaseDislikesByOne");
 
 const dislikedUsersSchema = new mongoose.Schema({
   name: {
@@ -22,24 +24,15 @@ const dislikeSchema = new mongoose.Schema({
   },
 });
 
-dislikeSchema.methods.increaseDislikesByOne = function (user) {
-  this.dislikesCount += 1;
-  this.dislikedUsers.push(user);
-};
-
-dislikeSchema.methods.decreaseDislikesByOne = function (user) {
-  this.dislikesCount -= 1;
-  this.dislikedUsers.filter(
-    (likedUser) => likedUser._id.toHexString() === user._id
-  );
-};
+dislikeSchema.methods.increaseDislikesByOne = increaseDislikesByOne;
+dislikeSchema.methods.decreaseDislikesByOne = decreaseDislikesByOne;
 
 dislikeSchema.methods.checkIfThisUserAlreadyPutDislike = function (user) {
-  const isThisUserAlredyPutLike = this.dislikedUsers.find(
+  const isThisUserAlredyPutDislike = this.dislikedUsers.find(
     (likedUser) => likedUser._id.toHexString() === user._id
   );
 
-  return isThisUserAlredyPutLike;
+  return isThisUserAlredyPutDislike;
 };
 
 module.exports = dislikeSchema;
