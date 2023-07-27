@@ -31,12 +31,12 @@ async function validateUser(user, newPassword) {
 
   if (isBlockedUser) {
     const {
-      blockedBy: { _name },
+      blockedBy: { name },
     } = user.userStatus.blockingInfo;
 
+    YOU_HAVE_BEEN_BLOCKED_BY.message = `You have been blocked by ${name}, you can no longer sing in to your account!`;
+
     return YOU_HAVE_BEEN_BLOCKED_BY;
-    // TODO: сделать что то с этим YOU HAVE BEEN BLOCKED и this.name в нем
-    // мб конструктор который будет принимать name через Constructor.prototype.name = name
   }
 
   const isValidPassword = await compareHashedStrings(
