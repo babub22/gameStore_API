@@ -16,6 +16,7 @@ const { User } = require("../../../models/user/user");
 const { createNewUser } = require("./utils/createNewUser");
 const dbDisconnection = require("../../../setup/dbDisconnection");
 const REVIEW_DOES_NOT_EXISTS = require("../../../utils/responseObjects/reviews/REVIEW_DOES_NOT_EXISTS");
+const DONT_HAVE_PERMISSION_TO_CHANGE_REVIEW = require("../../../utils/responseObjects/reviews/DONT_HAVE_PERMISSION_TO_CHANGE_REVIEW");
 
 const route = "/api/reviews/";
 
@@ -242,14 +243,11 @@ describe(route, () => {
 
       const decoded = decodeToken(token);
 
-      const response = await Review.checkIfProvidedUserWroteThisReview(
+      const { resultBody } = await Review.checkIfProvidedUserWroteThisReview(
         wrongReviewId,
         decoded
       );
-      expect(response).toMatchObject({
-        status: 404,
-        message: REVIEW_DOES_NOT_EXISTS,
-      });
+      expect(resultBody).toMatchObject(REVIEW_DOES_NOT_EXISTS);
     });
 
     test("if user dont have permission to change this review, it will return 404 status and message", async () => {
@@ -259,14 +257,11 @@ describe(route, () => {
 
       const decoded = decodeToken(anotherToken);
 
-      const response = await Review.checkIfProvidedUserWroteThisReview(
+      const { resultBody } = await Review.checkIfProvidedUserWroteThisReview(
         reviewId,
         decoded
       );
-      expect(response).toMatchObject({
-        status: 403,
-        message: "You dont have permission to change this review!",
-      });
+      expect(resultBody).toMatchObject(DONT_HAVE_PERMISSION_TO_CHANGE_REVIEW);
     });
 
     test("if it valid request, it will return null", async () => {
@@ -275,11 +270,11 @@ describe(route, () => {
 
       const decoded = decodeToken(token);
 
-      const response = await Review.checkIfProvidedUserWroteThisReview(
+      const { resultBody } = await Review.checkIfProvidedUserWroteThisReview(
         reviewId,
         decoded
       );
-      expect(response).toBeUndefined();
+      expect(resultBody).toBe(true);
     });
   });
 
