@@ -43,6 +43,32 @@ describe(route, () => {
         expect(res.body.some((game) => game._id === gameId)).toBe(true);
       });
     });
+
+    describe("/:gameId", () => {
+      const exec = (gameId) => request.get(route + gameId);
+
+      test("if game doesnt exist, it will return 404", async () => {
+        const gameId = getHexedObjectId();
+
+        const res = await exec(gameId);
+
+        expect(res.status).toEqual(404);
+      });
+      test("if valid request, it will return 200", async () => {
+        const { gameId } = await createNewGame();
+
+        const res = await exec(gameId);
+
+        expect(res.status).toEqual(200);
+      });
+      test("if valid request, it will return game", async () => {
+        const { gameId } = await createNewGame();
+
+        const res = await exec(gameId);
+
+        expect(res.body._id).toEqual(gameId);
+      });
+    });
   });
 
   describe("POST", () => {
