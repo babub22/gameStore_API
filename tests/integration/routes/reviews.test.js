@@ -3,7 +3,6 @@ const request = require("supertest")(server);
 const { Review } = require("../../../models/review/review");
 const createNewGame = require("./utils/createNewGame");
 const getAdminToken = require("../../utils/getAdminToken");
-const { Game } = require("../../../models/game");
 const { Genre } = require("../../../models/genre");
 const { Developer } = require("../../../models/developer");
 const getUserToken = require("../../utils/getUserToken");
@@ -17,6 +16,7 @@ const { createNewUser } = require("./utils/createNewUser");
 const dbDisconnection = require("../../../setup/dbDisconnection");
 const REVIEW_DOES_NOT_EXISTS = require("../../../utils/responseObjects/reviews/REVIEW_DOES_NOT_EXISTS");
 const DONT_HAVE_PERMISSION_TO_CHANGE_REVIEW = require("../../../utils/responseObjects/reviews/DONT_HAVE_PERMISSION_TO_CHANGE_REVIEW");
+const { Game } = require("../../../models/game/game");
 
 const route = "/api/reviews/";
 
@@ -122,6 +122,97 @@ describe(route, () => {
         const reviewerInDb = await User.findById(userId);
 
         expect(reviewerInDb.reviewsCount).toEqual(1);
+      });
+      test("if valid request, this game should get +1 review to reviewCount", async () => {
+        const { gameId } = await createNewGame();
+        const { token } = getUserToken();
+
+        const validNewGameParams = {
+          text: "a".repeat(14),
+          gameScore: 7,
+        };
+
+        await exec(validNewGameParams, gameId, token);
+
+        const gameInDb = await Game.findById(gameId);
+
+        expect(gameInDb.reviewsCount).toEqual(1);
+      });
+      test("if valid request, this game should get average score property", async () => {
+        const { gameId } = await createNewGame();
+        const { token } = getUserToken();
+
+        const validNewGameParams = {
+          text: "a".repeat(14),
+          gameScore: 7,
+        };
+
+        await exec(validNewGameParams, gameId, token);
+
+        const gameInDb = await Game.findById(gameId);
+
+        expect(gameInDb.averageScore).toEqual(7);
+      });
+
+      test("if we create some reviews, this game should get +3 to reviewsCount", async () => {
+        const { gameId } = await createNewGame();
+        const { token } = getUserToken();
+
+        const validNewGameParams = [
+          {
+            text: "a".repeat(14),
+            gameScore: 7,
+          },
+          {
+            text: "b".repeat(14),
+            gameScore: 3,
+          },
+          {
+            text: "c".repeat(14),
+            gameScore: 3,
+          },
+        ];
+
+        let i = 0;
+
+        while (validNewGameParams.length > i) {
+          await exec(validNewGameParams[i], gameId, token);
+          i++;
+        }
+
+        const gameInDb = await Game.findById(gameId);
+
+        expect(gameInDb.averageScore).toEqual(4.3);
+      });
+      test("if we create some reviews, it will calculate and set average score", async () => {
+        const { gameId } = await createNewGame();
+        const { token } = getUserToken();
+
+        const validNewGameParams = [
+          {
+            text: "a".repeat(14),
+            gameScore: 7,
+          },
+          {
+            text: "b".repeat(14),
+            gameScore: 3,
+          },
+          {
+            text: "c".repeat(14),
+            gameScore: 3,
+          },
+        ];
+
+        let i = 0;
+
+        while (validNewGameParams.length > i) {
+          await exec(validNewGameParams[i], gameId, token);
+          i++;
+        }
+
+        const gameInDb = await Game.findById(gameId);
+
+        expect(gameInDb.reviewsCount).toEqual(3);
       });
     });
   });
@@ -232,6 +323,41 @@ describe(route, () => {
         const deletedReviewInDB = await Review.findById(reviewId);
 
         expect(deletedReviewInDB).toBeNull();
+      });
+      test("if review was deleted, it will -1 user reviewCount", async () => {
+        const { userId } = await createNewUser();
+        const { token: existUserToken } = getUserToken(userId);
+
+        const { reviewId } = await createNewReview(token);
+
+        await exec(reviewId, existUserToken);
+
+        const reviewerInDb = await User.findById(userId);
+        expect(reviewerInDb.reviewsCount).toEqual(0);
+      });
+
+      test("if review was deleted, it will -1 game reviewCount", async () => {
+        const { gameId, newGame } = await createNewGame();
+        const { token } = getUserToken();
+
+        const { reviewId } = await createNewReview(token, newGame);
+
+        await exec(reviewId, token);
+
+        const gameInDb = await Game.findById(gameId);
+        expect(gameInDb.reviewsCount).toEqual(0);
+      });
+      test("if valid request, this game average score property will be reset", async () => {
+        const { gameId, newGame } = await createNewGame();
+        const { token } = getUserToken();
+
+        const { reviewId } = await createNewReview(token, newGame);
+
+        await exec(reviewId, token);
+
+        const gameInDb = await Game.findById(gameId);
+
+        expect(gameInDb.averageScore).toEqual(0);
       });
     });
   });
@@ -439,7 +565,7 @@ async function getValidPOSTReqBody() {
   const { gameId } = await createNewGame();
 
   const validNewGameParams = {
-    text: new Array(15).join("a"),
+    text: "a".repeat(14),
     gameScore: 7,
   };
 
