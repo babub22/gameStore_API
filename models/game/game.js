@@ -59,6 +59,7 @@ const gameSchema = new mongoose.Schema({
 gameSchema.statics.increaseReviewsCountByGameId = increaseReviewsCountByGameId;
 gameSchema.statics.updateAverageScore = updateAverageScore;
 gameSchema.statics.createNewGame = createNewGame;
+gameSchema.statics.updateGame = updateGame;
 
 const Game = mongoose.model("Game", gameSchema);
 
