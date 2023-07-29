@@ -1,5 +1,5 @@
 const validateRequestBody = require("../middleware/validateRequestBody");
-const { Game } = require("../models/game");
+const { Game } = require("../models/game/game");
 const route = require("express").Router();
 const gameValidator = require("../utils/validators/game/gameValidator");
 const admin = require("../middleware/admin");

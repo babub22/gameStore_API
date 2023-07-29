@@ -1,4 +1,4 @@
-const { Game } = require("../../../../models/game");
+const { Game } = require("../../../../models/game/game");
 const { dateToString } = require("../../../../utils/dateToString");
 const createNewDevelover = require("./createNewDevelover");
 const createNewGenre = require("./createNewGenre");

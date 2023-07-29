@@ -1,4 +1,4 @@
-const { Game } = require("../../../models/game");
+const { Game } = require("../../../models/game/game");
 const server = require("../../../index");
 const request = require("supertest")(server);
 const createNewGenre = require("./utils/createNewGenre");

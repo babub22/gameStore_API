@@ -1,14 +1,15 @@
 const mongoose = require("mongoose");
-const { genreSchema } = require("./genre");
-const { developerSchema } = require("./developer");
-const { isCorrectFormat } = require("../utils/dateToString");
+const { genreSchema } = require("../genre");
+const { developerSchema } = require("../developer");
+const { isCorrectFormat } = require("../../utils/dateToString");
+const increaseReviewsCountByGameId = require("./statics/increaseReviewsCountByGameId");
+const updateAverageScore = require("./statics/updateAverageScore");
 
 const gameSchema = new mongoose.Schema({
   title: {
     type: String,
     minlength: 3,
     require: true,
-    unique: true,
     trim: true,
   },
   price: {
@@ -40,9 +41,21 @@ const gameSchema = new mongoose.Schema({
     type: Date,
   },
   addedBy: String,
-  // number of reviews
-  // average score
+  reviewsCount: {
+    type: Number,
+    default: 0,
+    min: 0,
+  },
+  averageScore: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 10,
+  },
 });
+
+gameSchema.statics.increaseReviewsCountByGameId = increaseReviewsCountByGameId;
+gameSchema.statics.updateAverageScore = updateAverageScore;
 
 const Game = mongoose.model("Game", gameSchema);
 
