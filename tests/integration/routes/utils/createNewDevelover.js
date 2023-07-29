@@ -1,8 +1,8 @@
 const { Developer } = require("../../../../models/developer");
 
-async function createNewDevelover() {
+async function createNewDevelover(name = "developer1") {
   const newDeveloper = new Developer({
-    name: "developer1",
+    name,
   });
 
   await newDeveloper.save();
