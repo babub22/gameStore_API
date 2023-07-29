@@ -5,6 +5,8 @@ const getReviewsByGameId = require("./statics/getReviewsByGameId");
 const getReviewsByAuthorId = require("./statics/getReviewsByAuthorId");
 const checkIfProvidedUserWroteThisReview = require("./statics/checkIfProvidedUserWroteThisReview");
 const createNewReview = require("./statics/createNewReview");
+const getAvarageScoreForGame = require("./statics/getAverageScoreForGame");
+const deleteReview = require("./statics/deleteReview");
 
 const reviewSchema = new mongoose.Schema({
   game: {
@@ -13,7 +15,6 @@ const reviewSchema = new mongoose.Schema({
         type: String,
         minlength: 3,
         require: true,
-        unique: true,
         trim: true,
       },
       releaseDate: { type: Date, require: true },
@@ -55,6 +56,8 @@ reviewSchema.statics.getReviewsByAuthorId = getReviewsByAuthorId;
 reviewSchema.statics.checkIfProvidedUserWroteThisReview =
   checkIfProvidedUserWroteThisReview;
 reviewSchema.statics.createNewReview = createNewReview;
+reviewSchema.statics.getAvarageScoreForGame = getAvarageScoreForGame;
+reviewSchema.statics.deleteReview = deleteReview;
 
 const Review = mongoose.model("Review", reviewSchema);
 
