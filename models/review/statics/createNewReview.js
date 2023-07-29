@@ -1,6 +1,6 @@
 const getResultLikeResponseObject = require("../../../utils/getResultLikeResponseObject");
 const THIS_GAME_DOES_NOT_EXISTS = require("../../../utils/responseObjects/games/THIS_GAME_DOES_NOT_EXISTS");
-const { Game } = require("../../game");
+const { Game } = require("../../game/game");
 const { User } = require("../../user/user");
 
 module.exports = async function ({
@@ -21,11 +21,24 @@ module.exports = async function ({
     game,
   });
 
-  async function saveNewUserAndIncreaseReviewsCount() {
+  async function saveNewReviewAndIncreaseReviewsCount() {
     await newReview.save();
 
     await User.increaseReviewsCountById({
       userId: newReview.author._id,
+    });
+
+    await Game.increaseReviewsCountByGameId({
+      gameId,
+    });
+
+    const avarageScoreForThisGame = await this.getAvarageScoreForGame({
+      gameId,
+    });
+
+    await Game.updateAverageScore({
+      gameId,
+      averageScore: avarageScoreForThisGame,
     });
   }
 
@@ -33,6 +46,6 @@ module.exports = async function ({
     result: {
       newReview,
     },
-    fn: saveNewUserAndIncreaseReviewsCount,
+    fn: saveNewReviewAndIncreaseReviewsCount.bind(this),
   });
 };
