@@ -1,8 +1,8 @@
 const { Genre } = require("../../../../models/genre");
 
-async function createNewGenre() {
+async function createNewGenre(name = "genre1") {
   const newGenre = new Genre({
-    name: "genre1",
+    name,
   });
 
   await newGenre.save();
