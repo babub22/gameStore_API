@@ -3,20 +3,12 @@ const { dateToString } = require("../../../../utils/dateToString");
 const createNewDevelover = require("./createNewDevelover");
 const createNewGenre = require("./createNewGenre");
 
-async function createNewGame(date) {
-  const { newDeveloper } = await createNewDevelover();
-  const { newGenre } = await createNewGenre();
+const fakeDate = Date.parse("1995-05-30");
 
-  const releaseDate = dateToString(date);
+async function createNewGame() {
+  const newGameObject = await getNewGameObject();
 
-  const newGame = new Game({
-    title: "Game title",
-    price: 20,
-    releaseDate,
-    description: new Array(26).join("a"),
-    genre: newGenre,
-    developer: newDeveloper,
-  });
+  const newGame = new Game(newGameObject);
 
   await newGame.save();
 
@@ -25,4 +17,22 @@ async function createNewGame(date) {
   return { gameId, newGame };
 }
 
-module.exports = createNewGame;
+async function getNewGameObject(
+  gameBody = { title: "Game title", price: 20, description: "a".repeat(26) },
+  developerName,
+  genreName
+) {
+  const { newDeveloper } = await createNewDevelover(developerName);
+  const { newGenre } = await createNewGenre(genreName);
+
+  const releaseDate = dateToString(fakeDate);
+
+  return {
+    ...gameBody,
+    releaseDate,
+    genre: newGenre,
+    developer: newDeveloper,
+  };
+}
+
+module.exports = { createNewGame, fakeDate, getNewGameObject };

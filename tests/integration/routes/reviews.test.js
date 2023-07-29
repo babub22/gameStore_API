@@ -1,7 +1,7 @@
 const server = require("../../../index");
 const request = require("supertest")(server);
 const { Review } = require("../../../models/review/review");
-const createNewGame = require("./utils/createNewGame");
+const { createNewGame } = require("./utils/createNewGame");
 const getAdminToken = require("../../utils/getAdminToken");
 const { Genre } = require("../../../models/genre");
 const { Developer } = require("../../../models/developer");

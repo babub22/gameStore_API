@@ -1,5 +1,5 @@
 const { Review } = require("../../../../models/review/review");
-const createNewGame = require("./createNewGame");
+const { createNewGame } = require("./createNewGame");
 const decodeToken = require("../../../../utils/decodeToken");
 
 async function getValidNewReviewObject(token, alreadyCreatedGame) {
