@@ -4,6 +4,8 @@ const { developerSchema } = require("../developer");
 const { isCorrectFormat } = require("../../utils/dateToString");
 const increaseReviewsCountByGameId = require("./statics/increaseReviewsCountByGameId");
 const updateAverageScore = require("./statics/updateAverageScore");
+const createNewGame = require("./statics/createNewGame");
+const updateGame = require("./statics/updateGame");
 
 const gameSchema = new mongoose.Schema({
   title: {
@@ -56,6 +58,7 @@ const gameSchema = new mongoose.Schema({
 
 gameSchema.statics.increaseReviewsCountByGameId = increaseReviewsCountByGameId;
 gameSchema.statics.updateAverageScore = updateAverageScore;
+gameSchema.statics.createNewGame = createNewGame;
 
 const Game = mongoose.model("Game", gameSchema);
 
