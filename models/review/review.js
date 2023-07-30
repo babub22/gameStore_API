@@ -7,6 +7,8 @@ const checkIfProvidedUserWroteThisReview = require("./statics/checkIfProvidedUse
 const createNewReview = require("./statics/createNewReview");
 const getAvarageScoreForGame = require("./statics/getAverageScoreForGame");
 const deleteReview = require("./statics/deleteReview");
+const { isCorrectFormat } = require("../../utils/dateToString");
+const updateReview = require("./statics/updateReview");
 
 const reviewSchema = new mongoose.Schema({
   game: {
@@ -17,13 +19,19 @@ const reviewSchema = new mongoose.Schema({
         require: true,
         trim: true,
       },
-      releaseDate: { type: Date, require: true },
+      releaseDate: {
+        type: String,
+        validate: {
+          validator: (dateString) => isCorrectFormat(dateString),
+        },
+        require: true,
+      },
     }),
     required: true,
   },
   author: {
     type: new mongoose.Schema({
-      isReviewer: { type: "Boolean" },
+      isReviewer: { type: Boolean },
       name: { type: String, required: true, minlength: 3, trim: true },
     }),
     required: true,
@@ -47,9 +55,6 @@ const reviewSchema = new mongoose.Schema({
   updateDate: {
     type: Date,
   },
-  updateDate: {
-    type: Date,
-  },
   likes: { type: likeSchema, default: { likeSchema } },
   dislikes: { type: dislikeSchema, default: { dislikeSchema } },
 });
@@ -61,6 +66,7 @@ reviewSchema.statics.checkIfProvidedUserWroteThisReview =
 reviewSchema.statics.createNewReview = createNewReview;
 reviewSchema.statics.getAvarageScoreForGame = getAvarageScoreForGame;
 reviewSchema.statics.deleteReview = deleteReview;
+reviewSchema.statics.updateReview = updateReview;
 
 const Review = mongoose.model("Review", reviewSchema);
 
