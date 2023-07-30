@@ -1,4 +1,5 @@
 const getResultLikeResponseObject = require("../../../utils/getResultLikeResponseObject");
+const THIS_GAME_ALREADY_EXISTS = require("../../../utils/responseObjects/games/THIS_GAME_ALREADY_EXISTS");
 const validateGameBodyAndGetGameObject = require("./utils/validateGameBodyAndGetGameObject");
 
 module.exports = async function ({ req }) {
@@ -9,6 +10,14 @@ module.exports = async function ({ req }) {
   if (!isValidRequest) {
     return await getResultLikeResponseObject({
       errorObject: resultBody,
+    });
+  }
+
+  const isGameAlreadyExist = await this.exists({ title: req.body.title });
+
+  if (isGameAlreadyExist) {
+    return await getResultLikeResponseObject({
+      errorObject: THIS_GAME_ALREADY_EXISTS,
     });
   }
 
