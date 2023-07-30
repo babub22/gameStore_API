@@ -120,4 +120,41 @@ describe(route, () => {
       });
     });
   });
+
+  describe("DELETE", () => {
+    const { token } = getAdminToken();
+
+    const exec = (developerId) =>
+      request.delete(route + developerId).set("x-auth-token", token);
+
+    describe("/:developerId", () => {
+      test("if developer for provided developerId doesnt exists, it will return 404", async () => {
+        const wrongDeveloperId = getHexedObjectId();
+
+        const res = await exec(wrongDeveloperId);
+        expect(res.status).toBe(404);
+      });
+      test("if valid request, it will send 200", async () => {
+        const { developerId } = await createNewDeveloper();
+
+        const res = await exec(developerId);
+        expect(res.status).toBe(200);
+      });
+      test("if valid request, it will send deleted document", async () => {
+        const { developerId } = await createNewDeveloper();
+
+        const res = await exec(developerId);
+        expect(res.body._id).toEqual(developerId);
+      });
+      test("if document was deleted", async () => {
+        const { developerId } = await createNewDeveloper();
+
+        await exec(developerId);
+
+        const deletedReviewInDB = await Developer.findById(developerId);
+
+        expect(deletedReviewInDB).toBeNull();
+      });
+    });
+  });
 });
