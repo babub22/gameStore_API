@@ -275,6 +275,16 @@ describe(route, () => {
 
         expect(res.body).not.toEqual(newReview);
       });
+      test("if valid request, it will set updateDate", async () => {
+        const { token } = getUserToken();
+        const { reviewId } = await createNewReview(token);
+
+        await exec(reviewId, changedReview, token);
+
+        const updatedReviewInDB = await Review.findById(reviewId);
+
+        expect(updatedReviewInDB.updateDate).toBeDefined();
+      });
     });
   });
 
