@@ -102,10 +102,10 @@ describe(route, () => {
         expect(res.status).toBe(400);
       });
 
-      test("if request data valid, it will return 200", async () => {
+      test("if request data valid, it will return 201", async () => {
         const res = await exec(validNewGenre, adminToken);
 
-        expect(res.status).toBe(200);
+        expect(res.status).toBe(201);
       });
 
       test("if document was created", async () => {
@@ -114,6 +114,13 @@ describe(route, () => {
         const genreInDB = await Genre.findOne(validNewGenre);
 
         expect(res.body._id).toBe(genreInDB._id.toHexString());
+      });
+
+      test("if genre already exists, it will return 409", async () => {
+        await exec(validNewGenre, adminToken);
+        const res = await exec(validNewGenre, adminToken);
+
+        expect(res.status).toEqual(409);
       });
     });
   });
