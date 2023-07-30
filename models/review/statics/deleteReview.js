@@ -31,7 +31,7 @@ module.exports = async function ({ reviewId, user }) {
 
     await Game.updateAverageScore({
       gameId: deletedReview.game._id,
-      score: avarageScoreForThisGame,
+      averageScore: avarageScoreForThisGame,
     });
   }
 
