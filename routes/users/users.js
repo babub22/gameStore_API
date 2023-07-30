@@ -8,7 +8,7 @@ const validateRequestParams = require("../../middleware/validateRequestParams");
 const objectIdValidator = require("../../utils/validators/objectIdValidator");
 const blockingInfoValidator = require("../../utils/validators/user/blockingInfoValidator");
 const validateRequestQuery = require("../../middleware/validateRequestQuery");
-const GETAllUsersQueryValidator = require("../../utils/validators/user/GET_allUsersQueryValidator");
+const usersQueryValidator = require("../../utils/validators/user/usersQueryValidator");
 const admin = require("../../middleware/admin");
 const changeRoleQueryValidator = require("../../utils/validators/user/changeRoleQueryValidator");
 const getAllUsers = require("./handlers/getAllUsers");
@@ -20,11 +20,7 @@ const singUp = require("./handlers/singUp");
 
 const router = express.Router();
 
-router.get(
-  "/",
-  [auth, validateRequestQuery(GETAllUsersQueryValidator)],
-  getAllUsers
-);
+router.get("/", [auth, validateRequestQuery(usersQueryValidator)], getAllUsers);
 
 router.get("/:objectId", validateRequestParams(objectIdValidator), getUser);
 

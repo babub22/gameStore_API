@@ -1,4 +1,4 @@
-const GET_allUsersQueryValidator = require("../../../../utils/validators/user/GET_allUsersQueryValidator");
+const usersQueryValidator = require("../../../../utils/validators/user/usersQueryValidator");
 const extractMessageFromJoiError = require("./utils/extractMessageFromJoiError");
 
 const validQuery = {
@@ -7,16 +7,16 @@ const validQuery = {
   role: "User",
 };
 
-describe("GET_allUsersQueryValidator", () => {
+describe("usersQueryValidator", () => {
   test("if provided query is valid", () => {
-    const result = GET_allUsersQueryValidator(validQuery);
+    const result = usersQueryValidator(validQuery);
 
     expect(result.value).toEqual(validQuery);
   });
 
   describe("if limit", () => {
     test("is not a number", () => {
-      const { error } = GET_allUsersQueryValidator({
+      const { error } = usersQueryValidator({
         ...validQuery,
         limit: true,
       });
@@ -28,7 +28,7 @@ describe("GET_allUsersQueryValidator", () => {
   });
 
   test("less than 2, it will return error", () => {
-    const { error } = GET_allUsersQueryValidator({
+    const { error } = usersQueryValidator({
       ...validQuery,
       limit: 1,
     });
@@ -40,7 +40,7 @@ describe("GET_allUsersQueryValidator", () => {
 
   describe("if sortBy", () => {
     test("is not a string", () => {
-      const { error } = GET_allUsersQueryValidator({
+      const { error } = usersQueryValidator({
         ...validQuery,
         sortBy: true,
       });
@@ -50,7 +50,7 @@ describe("GET_allUsersQueryValidator", () => {
       expect(message).toMatch("must be a string");
     });
     test("is invalid 'sortBy' value", () => {
-      const { error } = GET_allUsersQueryValidator({
+      const { error } = usersQueryValidator({
         ...validQuery,
         sortBy: "age",
       });
@@ -65,7 +65,7 @@ describe("GET_allUsersQueryValidator", () => {
 
   describe("if display", () => {
     test("is not a string", () => {
-      const { error } = GET_allUsersQueryValidator({
+      const { error } = usersQueryValidator({
         ...validQuery,
         role: 10,
       });
@@ -75,7 +75,7 @@ describe("GET_allUsersQueryValidator", () => {
       expect(message).toMatch('"role" must be a string');
     });
     test("is invalid 'display' value", () => {
-      const { error } = GET_allUsersQueryValidator({
+      const { error } = usersQueryValidator({
         ...validQuery,
         role: "SuperUser",
       });
@@ -88,7 +88,7 @@ describe("GET_allUsersQueryValidator", () => {
     });
 
     test('is a valid role="Reviewer"', () => {
-      const result = GET_allUsersQueryValidator({
+      const result = usersQueryValidator({
         ...validQuery,
         role: "Reviewer",
       });
@@ -100,7 +100,7 @@ describe("GET_allUsersQueryValidator", () => {
     });
 
     test('is a valid role="Moderator"', () => {
-      const result = GET_allUsersQueryValidator({
+      const result = usersQueryValidator({
         ...validQuery,
         role: "Moderator",
       });
@@ -112,7 +112,7 @@ describe("GET_allUsersQueryValidator", () => {
     });
 
     test('is a valid role="Admin"', () => {
-      const result = GET_allUsersQueryValidator({
+      const result = usersQueryValidator({
         ...validQuery,
         role: "Admin",
       });

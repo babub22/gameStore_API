@@ -3,7 +3,7 @@ const Joi = require("joi");
 const SORTBY_REGEX = /^name$|^role$|^reviewsCount$/;
 const ROLE_REGEX = /^Admin$|^Reviewer$|^Moderator$|^User$/;
 
-function getAllUsersQueryValidator(review) {
+function usersQueryValidator(review) {
   const schema = Joi.object({
     limit: Joi.number().min(2),
     sortBy: Joi.string().regex(SORTBY_REGEX),
@@ -13,4 +13,4 @@ function getAllUsersQueryValidator(review) {
   return schema.validate(review);
 }
 
-module.exports = getAllUsersQueryValidator;
+module.exports = usersQueryValidator;
