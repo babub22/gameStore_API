@@ -4,7 +4,6 @@ const request = require("supertest")(server);
 const { Genre } = require("../../../models/genre");
 const { Developer } = require("../../../models/developer");
 const getAdminToken = require("../../utils/getAdminToken");
-const mongoose = require("mongoose");
 const { createNewGame, getNewGameObject } = require("./utils/createNewGame");
 const decodeToken = require("../../../utils/decodeToken");
 const dbDisconnection = require("../../../setup/dbDisconnection");
@@ -305,9 +304,10 @@ describe(route, () => {
 
       test("if developer for provided developerId does not exist, it will return 404", async () => {
         const validNewGameParams = await getValidNewGameRequestBody();
+
         const res = await exec({
           ...validNewGameParams,
-          developerId: new mongoose.Types.ObjectId(),
+          developerId: getHexedObjectId(),
         });
 
         expect(res.status).toBe(404);
@@ -317,7 +317,7 @@ describe(route, () => {
         const validNewGameParams = await getValidNewGameRequestBody();
         const res = await exec({
           ...validNewGameParams,
-          genreId: new mongoose.Types.ObjectId(),
+          genreId: getHexedObjectId(),
         });
 
         expect(res.status).toBe(404);
@@ -333,7 +333,7 @@ describe(route, () => {
         expect(res.status).toBe(400);
       });
 
-      test("if valid request, it will return 200", async () => {
+      test("if valid request, it will return 201", async () => {
         const validNewGameParams = await getValidNewGameRequestBody();
         const res = await exec(validNewGameParams);
 
@@ -347,6 +347,15 @@ describe(route, () => {
         const decodedJWT = decodeToken(token);
 
         expect(res.body.addedBy).toEqual(decodedJWT.name);
+      });
+
+      test("if game already exists, it will return 409", async () => {
+        const validNewGameParams = await getValidNewGameRequestBody();
+
+        await exec(validNewGameParams);
+        const res = await exec(validNewGameParams);
+
+        expect(res.status).toEqual(409);
       });
     });
   });
