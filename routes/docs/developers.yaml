@@ -1,0 +1,108 @@
+components:
+  schemas:
+    Developer:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Developer name
+      example:
+        name: New developer
+tags:
+  name: Developers
+  description: The Developers managing API
+/api/developers:
+  post:
+    summary: Create a new developer
+    description: To create new developer, admin role is required
+    tags: [Developers]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Developer"
+    responses:
+      201:
+        description: It will return created developer.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Developer"
+      401:
+        description: No authentication token provided!
+        content:
+      403:
+        description: You dont have permission to create new developer!
+      409:
+        description: This genre already exists!
+  get:
+    summary: Lists all the developers
+    tags: [Developers]
+    responses:
+      200:
+        description: It will return list of all developers
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/Developer"
+/api/developers/{id}:
+  delete:
+    summary: Delete the developer by id
+    description: To delete developer, admin role is required
+    tags: [Developers]
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+        description: developerId
+    responses:
+      200:
+        description: It will return the developer that was deleted
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Developer"
+      401:
+        description: No authentication token provided!
+      403:
+        description: You dont have permission to delete developer!
+      404:
+        description: The developer was not found!
+  put:
+    summary: Update the developer by id
+    description: To update developer, admin role is required
+    tags: [Developers]
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+        description: developerId
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Developer"
+    responses:
+      200:
+        description: It will return the developer that was updated
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Developer"
+      401:
+        description: No authentication token provided!
+      403:
+        description: You dont have permission to update developer!
+      404:
+        description: The developer was not found!
