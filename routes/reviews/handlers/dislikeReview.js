@@ -14,12 +14,17 @@ async function dislikeReview(req, res) {
     return res.status(status).send(message);
   }
 
-  const isUserAlreadyPutLikeOnThisReview =
+  const isUserAlreadyPutDislikeOnThisReview =
     review.dislikes.checkIfThisUserAlreadyPutDislike(user);
 
-  isUserAlreadyPutLikeOnThisReview
+    isUserAlreadyPutDislikeOnThisReview
     ? review.dislikes.decreaseDislikesByOne(user)
     : review.dislikes.increaseDislikesByOne(user);
+
+    const isUserAlreadyPutLikeOnThisReview =
+      review.likes.checkIfThisUserAlreadyPutLike(user);
+
+    isUserAlreadyPutLikeOnThisReview && review.likes.decreaseLikesByOne(user);
 
   const saved = await review.save();
 
