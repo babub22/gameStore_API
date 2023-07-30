@@ -61,6 +61,13 @@ describe(route, () => {
 
         expect(decodedJWT._id).toBe(userInDb._id.toHexString());
       });
+      test("if valid request, it will set registrationDate", async () => {
+        await exec(validUserData);
+
+        const userInDb = await User.findOne(omit(validUserData, ["password"]));
+
+        expect(userInDb.registrationDate).toBeDefined();
+      });
     });
 
     describe("singin/", () => {
