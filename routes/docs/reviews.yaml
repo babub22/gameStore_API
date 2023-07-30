@@ -1,0 +1,294 @@
+components:
+  schemas:
+    ReviewRequestBody:
+      type: object
+      required: -text
+        -gameScore
+      properties:
+        text:
+          type: string
+          minLength: 3
+        gameScore:
+          type: number
+          minimum: 0
+          maximum: 10
+    Review:
+      type: object
+      required:
+        - text
+        - gameScore
+        - creationDate
+        - author
+        - game
+      properties:
+        game:
+          description: Information about the game for which the review was written
+          type: object
+          required:
+            - title
+            - releaseDate
+          properties:
+            title:
+              type: string
+              minLength: 3
+            releaseDate:
+              type: string
+        author:
+          description: Information about the user who wrote this review
+          type: object
+          required:
+            - isReviewer
+            - name
+          properties:
+            isReviewer:
+              type: boolean
+            name:
+              type: string
+              minLength: 3
+        text:
+          description: Text of review
+          type: string
+          minLength: 3
+        gameScore:
+          description: Review score
+          type: number
+          minimum: 0
+          maximum: 10
+        creationDate:
+          description: When was the review created
+          type: string
+          format: date
+        updateDate:
+          description: When was the review last updated
+          type: string
+          format: date
+        dislikes:
+          description: Information about dislikes on this review
+          type: object
+          properties:
+            dislikesCount:
+              description: Number of dislikes on this review
+              type: number
+              minimum: 0
+            dislikedUsers:
+              description: Array of users who have disliked this review
+              type: array
+              items:
+                type: object
+                required:
+                  - name
+                  - dislikesDate
+                properties:
+                  name:
+                    description: The nickname of the user who set the dislike
+                    type: string
+                    minLength: 3
+                  dislikesDate:
+                    description: When the dislike was put up for review
+                    type: string
+                    format: date
+        likes:
+          description: Information about likes on this review
+          type: object
+          properties:
+            likesCount:
+              description: Number of likes on this review
+              type: number
+              minimum: 0
+            likedUsers:
+              description: Array of users who have liked this review
+              type: array
+              items:
+                type: object
+                required:
+                  - name
+                  - likesDate
+                properties:
+                  name:
+                    description: The nickname of the user who set the dislike
+                    type: string
+                    minLength: 3
+                  likesDate:
+                    description: When the like was put up for review
+                    type: string
+                    format: date
+      example:
+        game:
+          title: "Game title"
+          releaseDate: 1995-05-29T22:00:00.000Z
+        author:
+          - isReviewer: false
+          - name: "Vlad"
+        text: "aaaaaaaaaaaaaa"
+        gameScore: 7
+        creationDate: 2023-07-30T10:24:49.941Z
+        likes:
+          - likesCount: 0
+          - likedUsers: []
+        dislikes:
+          - dislikesCount: 0
+          - dislikedUsers: []
+/api/reviews/game/{objectId}:
+  get:
+    summary: Get reviews by game ID
+    description: Retrieve reviews by the ID of the game.
+    tags:
+        - Reviews
+    parameters:
+      - in: path
+        name: objectId
+        required: true
+        schema:
+          type: string
+        description: ID of the game
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/Review"
+/api/reviews/author/{objectId}:
+  get:
+    summary: Get reviews by author ID
+    description: Retrieve reviews by the ID of the author.
+    tags:
+        - Reviews
+    parameters:
+      - in: path
+        name: objectId
+        required: true
+        schema:
+          type: string
+        description: ID of the author
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/Review"
+/api/reviews/{objectId}:
+  post:
+    summary: Create a new review
+    description: Create a new review for a game.
+    tags:
+        - Reviews
+    parameters:
+      - in: path
+        name: objectId
+        required: true
+        schema:
+          type: string
+        description: ID of the game
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ReviewRequestBody"
+    responses:
+      "201":
+        description: Created
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Review"
+      "401":
+      description: Unauthorized
+  put:
+    summary: Update a review
+    description: Update a review using its ID.
+    tags:
+        - Reviews
+    parameters:
+      - in: path
+        name: objectId
+        required: true
+        schema:
+          type: string
+        description: ID of the review
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ReviewRequestBody"
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Review"
+      "401":
+        description: Unauthorized
+      "404":
+        description: Review not found
+  delete:
+    summary: Delete a review
+    description: Delete a review using its ID.
+    tags:
+        - Reviews
+    parameters:
+      - in: path
+        name: objectId
+        required: true
+        schema:
+          type: string
+        description: ID of the review
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Review"
+      "401":
+        description: Unauthorized
+      "404":
+        description: Review not found
+/api/reviews/{objectId}/like:
+  post:
+    summary: Like a review
+    description: Like a review using its ID.
+    tags:
+        - Reviews
+    parameters:
+      - in: path
+        name: objectId
+        required: true
+        schema:
+          type: string
+        description: ID of the review
+    responses:
+      "200":
+        description: OK
+      "401":
+        description: Unauthorized
+      "404":
+        description: Review not found
+/api/reviews/{objectId}/dislike:
+  post:
+    summary: Dislike a review
+    description: Dislike a review using its ID.
+    tags:
+        - Reviews
+    parameters:
+      - in: path
+        name: objectId
+        required: true
+        schema:
+          type: string
+        description: ID of the review
+    responses:
+      "200":
+        description: OK
+      "401":
+        description: Unauthorized
+      "404":
+        description: Review not found
