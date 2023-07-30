@@ -4,7 +4,6 @@ const validateRequestParams = require("../../middleware/validateRequestParams");
 const auth = require("../../middleware/auth");
 const reviewValidator = require("../../utils/validators/review/reviewValidator");
 const validateRequestBody = require("../../middleware/validateRequestBody");
-const PUT_reviewValidator = require("../../utils/validators/review/PUT_reviewValidator");
 const reviewsByGame = require("./handlers/reviewByGame");
 const reviewByAuthor = require("./handlers/reviewByAuthor");
 const newReview = require("./handlers/newReview");
@@ -40,7 +39,7 @@ router.put(
   [
     auth,
     validateRequestParams(objectIdValidator),
-    validateRequestBody(PUT_reviewValidator),
+    validateRequestBody(reviewValidator),
   ],
   changeReview
 );
