@@ -1,6 +1,6 @@
 module.exports = function (user) {
-  this.dislikesCount -= 1;
-  this.dislikedUsers.filter(
-    (likedUser) => likedUser._id.toHexString() === user._id
+  this.dislikesCount -= this.dislikesCount > 0 && 1;
+  this.dislikedUsers = this.dislikedUsers.filter(
+    (dislikedUser) => dislikedUser.name !== user.name
   );
 };
