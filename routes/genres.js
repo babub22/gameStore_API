@@ -73,4 +73,21 @@ router.put(
   }
 );
 
+router.delete(
+  "/:objectId",
+  [auth, admin, validateRequestParams(objectIdValidator)],
+  async (req, res) => {
+    const { objectId: genreId } = req.params;
+
+    const deletedGenre = await Genre.findByIdAndDelete(genreId);
+
+    if (!deletedGenre) {
+      const { status, message } = THIS_GENRE_DOES_NOT_EXISTS;
+      return res.status(status).send(message);
+    }
+
+    res.send(deletedGenre);
+  }
+);
+
 module.exports = router;
