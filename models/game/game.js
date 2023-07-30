@@ -13,6 +13,7 @@ const gameSchema = new mongoose.Schema({
     minlength: 3,
     require: true,
     trim: true,
+    unique: true,
   },
   price: {
     type: Number,
