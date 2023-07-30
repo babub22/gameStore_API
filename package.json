@@ -8,7 +8,8 @@
         "test:integration": "PORT=0 jest tests/integration --runInBand --verbose --testTimeout=15000",
         "tests": "PORT=0 jest --runInBand --verbose --testTimeout=15000 --coverage",
         "lint": "eslint .",
-        "lint:fix": "eslint --fix ."
+        "lint:fix": "eslint --fix .",
+        "start": "nodemon index.js"
     },
     "author": "Vlad",
     "license": "ISC",
