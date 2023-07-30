@@ -2,7 +2,7 @@ const server = require("../../../index");
 const request = require("supertest")(server);
 const { Developer } = require("../../../models/developer");
 const getAdminToken = require("../../utils/getAdminToken");
-const createNewDevelover = require("./utils/createNewDevelover");
+const createNewDeveloper = require("./utils/createNewDeveloper");
 const dbDisconnection = require("../../../setup/dbDisconnection");
 
 const route = "/api/developers";
@@ -28,7 +28,7 @@ describe(route, () => {
       });
 
       test("if returned array of documents contain created developer", async () => {
-        const { developerId } = await createNewDevelover();
+        const { developerId } = await createNewDeveloper();
         const res = await exec();
 
         expect(

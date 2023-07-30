@@ -1,6 +1,6 @@
 const { Developer } = require("../../../../models/developer");
 
-async function createNewDevelover(name = "developer1") {
+async function createNewDeveloper(name = "developer1") {
   const newDeveloper = new Developer({
     name,
   });
@@ -12,4 +12,4 @@ async function createNewDevelover(name = "developer1") {
   return { developerId, newDeveloper };
 }
 
-module.exports = createNewDevelover;
+module.exports = createNewDeveloper;

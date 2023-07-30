@@ -1,6 +1,6 @@
 const { Game } = require("../../../../models/game/game");
 const { dateToString } = require("../../../../utils/dateToString");
-const createNewDevelover = require("./createNewDevelover");
+const createNewDeveloper = require("./createNewDeveloper");
 const createNewGenre = require("./createNewGenre");
 
 const fakeDate = Date.parse("1995-05-30");
@@ -22,7 +22,7 @@ async function getNewGameObject(
   developerName,
   genreName
 ) {
-  const { newDeveloper } = await createNewDevelover(developerName);
+  const { newDeveloper } = await createNewDeveloper(developerName);
   const { newGenre } = await createNewGenre(genreName);
 
   const releaseDate = dateToString(fakeDate);

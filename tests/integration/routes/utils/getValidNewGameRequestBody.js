@@ -1,9 +1,9 @@
-const createNewDevelover = require("./createNewDevelover");
+const createNewDeveloper = require("./createNewDeveloper");
 const { fakeDate } = require("./createNewGame");
 const createNewGenre = require("./createNewGenre");
 
 async function getValidNewGameRequestBody() {
-  const { developerId } = await createNewDevelover();
+  const { developerId } = await createNewDeveloper();
   const { genreId } = await createNewGenre();
 
   const validNewGameRequestBody = {
