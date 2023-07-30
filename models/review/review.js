@@ -47,6 +47,9 @@ const reviewSchema = new mongoose.Schema({
   updateDate: {
     type: Date,
   },
+  updateDate: {
+    type: Date,
+  },
   likes: { type: likeSchema, default: { likeSchema } },
   dislikes: { type: dislikeSchema, default: { dislikeSchema } },
 });
