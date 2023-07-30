@@ -1,0 +1,134 @@
+components:
+  schemas:
+    Genre:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 3
+          description: Genre name
+      example:
+        name: New genre    
+tags:
+  name: Genres
+  description: The Genres managing API
+/api/genres:
+  post:
+    summary: Create a new genre
+    description: To create new genre, admin role is required
+    tags: [Genres]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Genre'
+    responses:
+      200:
+        description: It will return created genre.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Genre'
+      401: 
+            description: No authentication token provided!  
+            content:
+      403: 
+            description: You dont have permission to create new genre! 
+      409: 
+            description: You dont have permission to create new genre! 
+  get:
+    summary: Lists all the genres
+    tags: [Genres]
+    responses:
+      200:
+        description: It will return list of all genres
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Genre'           
+/api/genres/{id}:     
+  get:
+    summary: Get the genre by id
+    description: To get genre by id
+    tags: [Genres]
+    parameters:
+       - in: path
+         name: id
+         schema:
+           type: string
+         required: true
+         description: GenreId
+    responses:
+      201:
+        description: It will find and return the genre by provided id
+        content:
+          application/json:
+            schema: 
+              type: array
+              items:
+                $ref: '#/components/schemas/Genre'     
+      401: 
+            description: No authentication token provided!  
+      403: 
+            description: You dont have permission to delete genre!
+      404:
+            description: The genre was not found!              
+  delete:
+    summary: Delete the genre by id
+    description: To delete genre, admin role is required
+    tags: [Genres]
+    parameters:
+       - in: path
+         name: id
+         schema:
+           type: string
+         required: true
+         description: GenreId
+    responses:
+      200:
+        description: It will return the genre that was deleted
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/Genre'     
+      401: 
+            description: No authentication token provided!  
+      403: 
+            description: You dont have permission to delete genre!
+      404:
+            description: The genre was not found!
+  put:
+    summary: Update the genre by id
+    description: To update genre, admin role is required
+    tags: [Genres]
+    parameters:
+       - in: path
+         name: id
+         schema:
+           type: string
+         required: true
+         description: GenreId
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Genre'
+    responses:
+      200:
+        description: It will return the genre that was updated
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/Genre'   
+      401: 
+            description: No authentication token provided!  
+      403: 
+            description: You dont have permission to update genre!       
+      404:
+            description: The genre was not found!                                
