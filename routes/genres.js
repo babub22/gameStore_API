@@ -6,6 +6,8 @@ const auth = require("../middleware/auth");
 const admin = require("../middleware/admin");
 const genreValidator = require("../utils/validators/genre/genreValidator");
 const validateRequestParams = require("../middleware/validateRequestParams");
+const THIS_GENRE_DOES_NOT_EXISTS = require("../utils/responseObjects/genre/THIS_GENRE_DOES_NOT_EXISTS");
+const THIS_GENRE_ALREADY_EXISTS = require("../utils/responseObjects/genre/THIS_GENRE_ALREADY_EXISTS");
 
 router.get("/", async (req, res) => {
   const genres = await Genre.find();
@@ -34,9 +36,40 @@ router.post(
   async (req, res) => {
     const newGenre = new Genre(req.body);
 
+    const isGenreAlreadyExist = await Genre.exists(req.body);
+
+    if (isGenreAlreadyExist) {
+      const { status, message } = THIS_GENRE_ALREADY_EXISTS;
+      return res.status(status).send(message);
+    }
+
     await newGenre.save();
 
-    res.send(newGenre);
+    res.status(201).send(newGenre);
+  }
+);
+
+router.put(
+  "/:objectId",
+  [
+    auth,
+    admin,
+    validateRequestParams(objectIdValidator),
+    validateRequestBody(genreValidator),
+  ],
+  async (req, res) => {
+    const { objectId: genreId } = req.params;
+
+    const updatedDeveloper = await Genre.findByIdAndUpdate(genreId, req.body, {
+      new: true,
+    });
+
+    if (!updatedDeveloper) {
+      const { status, message } = THIS_GENRE_DOES_NOT_EXISTS;
+      return res.status(status).send(message);
+    }
+
+    res.send(updatedDeveloper);
   }
 );
 
