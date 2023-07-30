@@ -4,7 +4,7 @@ const THIS_GAME_DOES_NOT_EXISTS = require("../../../utils/responseObjects/games/
 async function getGame(req, res) {
   const { objectId: gameId } = req.params;
 
-  const game = await Game.findById(gameId, { lean: true });
+  const game = await Game.findById(gameId);
 
   if (!game) {
     const { message, status } = THIS_GAME_DOES_NOT_EXISTS;
