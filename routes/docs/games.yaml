@@ -1,0 +1,230 @@
+components:
+  schemas:
+    GameRequestBody:
+      type: object
+      required: -title
+        -price
+        -description
+        -releaseDate
+        -genreId
+        -developerId
+      properties:
+        title:
+          type: string
+          minLength: 3
+        price:
+          type: number
+          minimum: 0
+        description:
+          type: string
+          minLength: 25
+        releaseDate:
+          type: string
+        genreId:
+          type: string
+        developerId:
+          type: string
+      example:
+        title: "Game title"
+        price: 20
+        releaseDate: 801792000000
+        description: "aaaaaaaaaaaaaaaaaaaaaaaaa"
+        developerId: "64c67eda0ffe6a7843ab42e9"
+        genreId: "64c67c2161ca03ae23b85bea"
+    Game:
+      type: object
+      required:
+        - title
+        - price
+        - releaseDate
+        - description
+        - creationDate
+        - game
+        - developer
+      properties:
+        title:
+          type: string
+          minLength: 3
+          description: Game title
+        price:
+          type: number
+          minimum: 0
+          description: Game price
+        releaseDate:
+          type: string
+          description: Release date of game, it will custom date-like string
+        description:
+          type: string
+          minLength: 25
+          description: Game description
+        game:
+          type: object
+          required:
+            - name
+          properties:
+            name:
+              type: string
+              minLength: 3
+              description: Name of the game game
+        developer:
+          type: object
+          required:
+            - name
+          properties:
+            name:
+              type: string
+              minLength: 1
+              description: Name of the game developer
+        creationDate:
+          type: string
+          format: date
+          description: When was the game created
+        updateDate:
+          type: string
+          format: date
+          description: When was the game last updated
+        addedBy:
+          type: string
+          description: Nickname of administrator who added this game
+        reviewsCount:
+          type: number
+          minimum: 0
+          description: Number of reviews on this game
+        averageScore:
+          type: number
+          minimum: 0
+          maximum: 10
+          description: Average score for this game
+      example:
+        title: "Game title"
+        price: 20
+        releaseDate: "May 30, 1995"
+        description: "aaaaaaaaaaaaaaaaaaaaaaaaaa"
+        game:
+          - name: "genre1"
+        developer:
+          - name: "developer1"
+        creationDate: 2023-07-30T10:26:52.102Z
+        reviewsCount: 0
+        averageScore: 0
+tags:
+  name: Games
+  description: The Games managing API
+/api/games:
+  post:
+    summary: Create a new game
+    description: To create new game, admin role is required
+    tags: [Games]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GameRequestBody"
+    responses:
+      201:
+        description: It will return created game.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Game"
+      401:
+        description: No authentication token provided!
+        content:
+      403:
+        description: You dont have permission to create new game!
+      409:
+        description: This game already exists!
+  get:
+    summary: Lists all the games
+    tags: [Games]
+    responses:
+      200:
+        description: It will return list of all games
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/Game"
+/api/games/{id}:
+  get:
+    summary: Get the game by id
+    description: To get game by id
+    tags: [Games]
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+        description: GameId
+    responses:    
+      201:
+        description: It will find and return the game by provided id
+        content:
+          application/json:
+            schema: 
+              type: array
+              items:
+                $ref: '#/components/schemas/Game'     
+      401: 
+            description: No authentication token provided!  
+      403: 
+            description: You dont have permission to delete genre!
+      404:
+            description: The genre was not found!       
+  delete:
+    summary: Delete the game by the gameID
+    description: To delete game, admin role is required
+    tags: [Games]
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+        description: GameId
+    responses:
+      200:
+        description: It will return the game that was deleted
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Game"
+      401:
+        description: No authentication token provided!
+      403:
+        description: You dont have permission to delete game!
+      404:
+        description: The game was not found!
+  put:
+    summary: Update the game by the gameID
+    description: To update game, admin role is required
+    tags: [Games]
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+        description: GameId
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GameRequestBody"
+    responses:
+      200:
+        description: It will return the game that was updated
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Game"
+      401:
+        description: No authentication token provided!
+      403:
+        description: You dont have permission to update game!
+      404:
+        description: The game was not found!
