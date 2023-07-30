@@ -60,4 +60,21 @@ router.put(
   }
 );
 
+router.delete(
+  "/:objectId",
+  [auth, admin, validateRequestParams(objectIdValidator)],
+  async (req, res) => {
+    const { objectId: developerId } = req.params;
+
+    const deletedDeveloper = await Developer.findByIdAndDelete(developerId);
+
+    if (!deletedDeveloper) {
+      const { status, message } = THIS_DEVELOPER_DOES_NOT_EXISTS;
+      return res.status(status).send(message);
+    }
+
+    res.send(deletedDeveloper);
+  }
+);
+
 module.exports = router;
