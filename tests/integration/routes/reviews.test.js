@@ -491,6 +491,30 @@ describe(route, () => {
 
           expect(likedReviewInDB.likes.likesCount).toBe(0);
         });
+        test("if users has been added to dislikedUsers array", async () => {
+          const { token: firstUserToken } = getUserToken();
+          const { token: secondUserToken } = getUserToken();
+
+          const { reviewId } = await createNewReview(token);
+
+          const firstUserDecoded = decodeToken(firstUserToken);
+          const secondUserDecoded = decodeToken(secondUserToken);
+
+          await putLike(reviewId, firstUserToken);
+          await putLike(reviewId, secondUserToken);
+
+          const dislikedReviewInDB = await Review.findById(reviewId);
+
+          const firstLikedUserId =
+            dislikedReviewInDB.likes.likedUsers[0]._id.toHexString();
+          const secondLikedUserId =
+            dislikedReviewInDB.likes.likedUsers[1]._id.toHexString();
+
+          expect({ firstLikedUserId, secondLikedUserId }).toEqual({
+            firstLikedUserId: firstUserDecoded._id,
+            secondLikedUserId: secondUserDecoded._id,
+          });
+        });
         test("if user already has dislike and tries to put like, it will remove dislike and put like", async () => {
           const { token } = getUserToken();
           const { reviewId } = await createNewReview(token);
@@ -554,6 +578,30 @@ describe(route, () => {
             dislikedReviewInDB.dislikes.dislikedUsers[0]._id.toHexString();
 
           expect(likedUserId).toEqual(decoded._id);
+        });
+        test("if users has been added to dislikedUsers array", async () => {
+          const { token: firstUserToken } = getUserToken();
+          const { token: secondUserToken } = getUserToken();
+
+          const { reviewId } = await createNewReview(token);
+
+          const firstUserDecoded = decodeToken(firstUserToken);
+          const secondUserDecoded = decodeToken(secondUserToken);
+
+          await putDislike(reviewId, firstUserToken);
+          await putDislike(reviewId, secondUserToken);
+
+          const dislikedReviewInDB = await Review.findById(reviewId);
+
+          const firstDislikedUserId =
+            dislikedReviewInDB.dislikes.dislikedUsers[0]._id.toHexString();
+          const secondDislikedUserId =
+            dislikedReviewInDB.dislikes.dislikedUsers[1]._id.toHexString();
+
+          expect({ firstDislikedUserId, secondDislikedUserId }).toEqual({
+            firstDislikedUserId: firstUserDecoded._id,
+            secondDislikedUserId: secondUserDecoded._id,
+          });
         });
         test("if property dislikesDate was set in user object", async () => {
           const { token } = getUserToken();
