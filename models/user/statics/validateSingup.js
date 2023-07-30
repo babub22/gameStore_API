@@ -17,6 +17,7 @@ module.exports = async function ({ email, password, ...args }) {
   const newUser = new this({
     ...args,
     email,
+    registrationDate: new Date(),
     password: hashedPassword,
   });
 
