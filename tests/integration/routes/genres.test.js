@@ -6,6 +6,7 @@ const getUserToken = require("../../utils/getUserToken");
 const getAdminToken = require("../../utils/getAdminToken");
 const createNewGenre = require("./utils/createNewGenre");
 const dbDisconnection = require("../../../setup/dbDisconnection");
+const getHexedObjectId = require("../../../utils/getHexedObjectId");
 
 const route = "/api/genres/";
 
@@ -117,10 +118,47 @@ describe(route, () => {
       });
 
       test("if genre already exists, it will return 409", async () => {
-        await exec(validNewGenre, adminToken);
-        const res = await exec(validNewGenre, adminToken);
+        await exec(validNewGenre,adminToken);
+        const res = await exec(validNewGenre,adminToken);
 
         expect(res.status).toEqual(409);
+      });
+    });
+  });
+
+  describe("DELETE", () => {
+    const { token } = getAdminToken();
+
+    const exec = (genreId) =>
+      request.delete(route + genreId).set("x-auth-token", token);
+
+    describe("/:genreId", () => {
+      test("if developer for provided genreId doesnt exists, it will return 404", async () => {
+        const wrongDeveloperId = getHexedObjectId();
+ 
+        const res = await exec(wrongDeveloperId);
+        expect(res.status).toBe(404);
+      });
+      test("if valid request, it will send 200", async () => {
+        const { genreId } = await createNewGenre();
+   
+        const res = await exec(genreId);
+        expect(res.status).toBe(200);
+      }); 
+      test("if valid request, it will send deleted document", async () => {
+        const { genreId } = await createNewGenre();
+
+        const res = await exec(genreId);
+        expect(res.body._id).toEqual(genreId);
+      }); 
+      test("if document was deleted", async () => {
+        const { genreId } = await createNewGenre();
+
+        await exec(genreId);
+
+        const deletedReviewInDB = await Genre.findById(genreId);
+
+        expect(deletedReviewInDB).toBeNull();
       });
     });
   });
