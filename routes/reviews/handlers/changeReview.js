@@ -11,7 +11,7 @@ async function changeReview(req, res) {
     return res.status(status).send(message);
   }
 
-  const updatedReview = await Review.findByIdAndUpdate(reviewId, req.body, {
+  const updatedReview = await Review.findByIdAndUpdate(reviewId, {...req.body,updateDate:Date.now()}, {
     new: true,
   });
 
