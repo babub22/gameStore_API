@@ -89,7 +89,7 @@ describe(route, () => {
         .send(newReview);
 
     describe("/:gameId", () => {
-      test("if game for provided gameId does not exist, it will return 404", async () => {
+      test("if game for provided gameId does not exists, it will return 404", async () => {
         const { validNewGameParams } = await getValidPOSTReqBody(token);
         const gameId = new mongoose.Types.ObjectId();
         const res = await exec(validNewGameParams, gameId);
@@ -240,7 +240,7 @@ describe(route, () => {
         expect(res.status).toBe(403);
       });
 
-      test("if review for provided reviewId doesnt exist, it will return 404", async () => {
+      test("if review for provided reviewId doesnt exists, it will return 404", async () => {
         const { token } = getUserToken();
         const wrongReviewId = getHexedObjectId();
 
@@ -303,7 +303,7 @@ describe(route, () => {
         expect(res.status).toBe(403);
       });
 
-      test("if review for provided reviewId doesnt exist, it will return 404", async () => {
+      test("if review for provided reviewId doesnt exists, it will return 404", async () => {
         const { token } = getUserToken();
         const wrongReviewId = getHexedObjectId();
 
@@ -373,7 +373,7 @@ describe(route, () => {
   });
 
   describe("checkIfProvidedUserWroteThisReview", () => {
-    test("if review for provided id doesnt exist, it will return 403 status and message", async () => {
+    test("if review for provided id doesnt exists, it will return 403 status and message", async () => {
       const { token } = getUserToken();
       const wrongReviewId = getHexedObjectId();
 
@@ -386,7 +386,7 @@ describe(route, () => {
       expect(resultBody).toMatchObject(REVIEW_DOES_NOT_EXISTS);
     });
 
-    test("if user dont have permission to change this review, it will return 404 status and message", async () => {
+    test("if user dont has permission to change this review, it will return 404 status and message", async () => {
       const { token } = getUserToken();
       const { reviewId } = await createNewReview(token);
       const { token: anotherToken } = getUserToken();
@@ -416,29 +416,32 @@ describe(route, () => {
 
   describe("POST ", () => {
     describe("/:reviewId", () => {
-      describe("/like", () => {
-        const exec = (reviewId, token) =>
-          request.post(route + reviewId + "/like").set("x-auth-token", token);
+      const putLike = (reviewId, token) =>
+        request.post(route + reviewId + "/like").set("x-auth-token", token);
 
-        test("if review for provided id doesnt exist, it will return 404", async () => {
+      const putDislike = (reviewId, token) =>
+        request.post(route + reviewId + "/dislike").set("x-auth-token", token);
+
+      describe("/like", () => {
+        test("if review for provided id doesnt exists, it will return 404", async () => {
           const { token } = getUserToken();
           const wrongReviewId = getHexedObjectId();
 
-          const res = await exec(wrongReviewId, token);
+          const res = await putLike(wrongReviewId, token);
           expect(res.status).toBe(404);
         });
         test("if it valid request, it will return 200", async () => {
           const { token } = getUserToken();
           const { reviewId } = await createNewReview(token);
 
-          const res = await exec(reviewId, token);
+          const res = await putLike(reviewId, token);
           expect(res.status).toBe(200);
         });
         test("if like was put on created review", async () => {
           const { token } = getUserToken();
           const { reviewId } = await createNewReview(token);
 
-          await exec(reviewId, token);
+          await putLike(reviewId, token);
 
           const likedReviewInDB = await Review.findById(reviewId);
 
@@ -448,7 +451,7 @@ describe(route, () => {
           const { token } = getUserToken();
           const { reviewId } = await createNewReview(token);
 
-          await exec(reviewId, token);
+          await putLike(reviewId, token);
 
           const likedReviewInDB = await Review.findById(reviewId);
 
@@ -459,7 +462,7 @@ describe(route, () => {
           const { reviewId } = await createNewReview(token);
           const decoded = decodeToken(token);
 
-          await exec(reviewId, token);
+          await putLike(reviewId, token);
 
           const likedReviewInDB = await Review.findById(reviewId);
           const likedUserId =
@@ -471,50 +474,59 @@ describe(route, () => {
           const { token } = getUserToken();
           const { reviewId } = await createNewReview(token);
 
-          await exec(reviewId, token);
+          await putLike(reviewId, token);
 
           const likedReviewInDB = await Review.findById(reviewId);
 
           expect(likedReviewInDB.likes.likedUsers[0].likesDate).toBeDefined();
         });
-        test("if current user already have like so likesCount should be decreased by one", async () => {
+        test("if current user already has like so likesCount should be decreased by one", async () => {
           const { token } = getUserToken();
           const { reviewId } = await createNewReview(token);
 
-          await exec(reviewId, token);
-          await exec(reviewId, token);
+          await putLike(reviewId, token);
+          await putLike(reviewId, token);
 
           const likedReviewInDB = await Review.findById(reviewId);
 
           expect(likedReviewInDB.likes.likesCount).toBe(0);
         });
+        test("if user already has dislike and tries to put like, it will remove dislike and put like", async () => {
+          const { token } = getUserToken();
+          const { reviewId } = await createNewReview(token);
+
+          await putDislike(reviewId, token);
+          await putLike(reviewId, token);
+
+          const likedReviewInDB = await Review.findById(reviewId);
+
+          expect({
+            likesCount: likedReviewInDB.likes.likesCount,
+            dislikesCount: likedReviewInDB.dislikes.dislikesCount,
+          }).toMatchObject({ likesCount: 1, dislikesCount: 0 });
+        });
       });
 
       describe("/dislike", () => {
-        const exec = (reviewId, token) =>
-          request
-            .post(route + reviewId + "/dislike")
-            .set("x-auth-token", token);
-
-        test("if review for provided id doesnt exist, it will return 404", async () => {
+        test("if review for provided id doesnt exists, it will return 404", async () => {
           const { token } = getUserToken();
           const wrongReviewId = getHexedObjectId();
 
-          const res = await exec(wrongReviewId, token);
+          const res = await putDislike(wrongReviewId, token);
           expect(res.status).toBe(404);
         });
         test("if it valid request, it will return 200", async () => {
           const { token } = getUserToken();
           const { reviewId } = await createNewReview(token);
 
-          const res = await exec(reviewId, token);
+          const res = await putDislike(reviewId, token);
           expect(res.status).toBe(200);
         });
         test("if dislike was put on created review", async () => {
           const { token } = getUserToken();
           const { reviewId } = await createNewReview(token);
 
-          await exec(reviewId, token);
+          await putDislike(reviewId, token);
 
           const dislikedReviewInDB = await Review.findById(reviewId);
 
@@ -524,7 +536,7 @@ describe(route, () => {
           const { token } = getUserToken();
           const { reviewId } = await createNewReview(token);
 
-          await exec(reviewId, token);
+          await putDislike(reviewId, token);
 
           const dislikedReviewInDB = await Review.findById(reviewId);
 
@@ -535,7 +547,7 @@ describe(route, () => {
           const { reviewId } = await createNewReview(token);
           const decoded = decodeToken(token);
 
-          await exec(reviewId, token);
+          await putDislike(reviewId, token);
 
           const dislikedReviewInDB = await Review.findById(reviewId);
           const likedUserId =
@@ -547,7 +559,7 @@ describe(route, () => {
           const { token } = getUserToken();
           const { reviewId } = await createNewReview(token);
 
-          await exec(reviewId, token);
+          await putDislike(reviewId, token);
 
           const dislikedReviewInDB = await Review.findById(reviewId);
 
@@ -555,16 +567,30 @@ describe(route, () => {
             dislikedReviewInDB.dislikes.dislikedUsers[0].dislikesDate
           ).toBeDefined();
         });
-        test("if current user already have dislike so dislikesCount should be decreased by one", async () => {
+        test("if current user already has dislike so dislikesCount should be decreased by one", async () => {
           const { token } = getUserToken();
           const { reviewId } = await createNewReview(token);
 
-          await exec(reviewId, token);
-          await exec(reviewId, token);
+          await putDislike(reviewId, token);
+          await putDislike(reviewId, token);
 
           const dislikedReviewInDB = await Review.findById(reviewId);
 
           expect(dislikedReviewInDB.dislikes.dislikesCount).toBe(0);
+        });
+        test("if user already has like and tries to put dislike, it will remove like and put dislike", async () => {
+          const { token } = getUserToken();
+          const { reviewId } = await createNewReview(token);
+
+          await putLike(reviewId, token);
+          await putDislike(reviewId, token);
+
+          const likedReviewInDB = await Review.findById(reviewId);
+
+          expect({
+            likesCount: likedReviewInDB.likes.likesCount,
+            dislikesCount: likedReviewInDB.dislikes.dislikesCount,
+          }).toMatchObject({ likesCount: 0, dislikesCount: 1 });
         });
       });
     });
