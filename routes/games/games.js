@@ -8,7 +8,6 @@ const validateRequestParams = require("../../middleware/validateRequestParams");
 const objectIdValidator = require("../../utils/validators/objectIdValidator");
 const getGames = require("./handlers/getGames");
 const newGame = require("./handlers/newGame");
-const PUT_gameValidator = require("../../utils/validators/game/PUT_gameValidator");
 const changeGame = require("./handlers/changeGame");
 const deleteGame = require("./handlers/deleteGame");
 
@@ -24,7 +23,7 @@ router.put(
     auth,
     admin,
     validateRequestParams(objectIdValidator),
-    validateRequestBody(PUT_gameValidator),
+    validateRequestBody(gameValidator),
   ],
   changeGame
 );
