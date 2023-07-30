@@ -31,8 +31,8 @@ const userSchema = new mongoose.Schema({
     enum: ["User", "Moderator", "Admin"],
     default: "User",
   },
-  registrationDate:{
-    type:Date
+  registrationDate: {
+    type: Date,
   },
   reviewsCount: {
     type: Number,
