@@ -1,0 +1,257 @@
+components:
+  schemas:
+    UserSingupBody:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        name:
+          type: string
+          minLength: 3
+    UserSinginBody:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    User:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+          minLength: 3
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 3
+          format: password
+        role:
+          type: string
+          enum: [User, Moderator, Admin]
+        registrationDate:
+          type: string
+          format: date
+        reviewsCount:
+          type: number
+          minimum: 0
+        isReviewer:
+          description: If reviewsCount >= 30, it will set isReviewer to true
+          type: boolean
+        userStatus:
+          description: If status === "Blocked", blockingInfo will be required
+          type: object
+          required:
+            - status
+            - blockingInfo
+          properties:
+            status:
+              type: string
+              enum: ["Active", "Blocked"]
+            blockingInfo:
+              description: Inforamtion about blocking
+              type: object
+              required:
+                - reason
+                - blockedBy
+              properties:
+                blockedBy:
+                  description: The name of the administrator who blocked
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      minLength: 3
+                reason:
+                  description: Blocking reason
+                  type: string
+                blockingDate:
+                  type: string
+                  format: date
+      example:
+        name: newUser
+        email: example@gmail.com
+        password: hashed password
+        role: User
+        reviewsCount: 0
+        userStatus:
+          - status: Active
+tags:
+  name: Users
+  description: The Users managing API
+/api/users/singin:
+  post:
+    summary: Singin
+    description: Route to singin
+    tags: [Users]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UserSinginBody"
+    responses:
+      200:
+        required: true
+        description: It will return created developer.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      401:
+        description: Password is wrong!
+/api/users/singup:
+  post:
+    summary: Singup
+    description: Route to singup
+    tags: [Users]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UserSingupBody"
+    responses:
+      200:
+        required: true
+        description: It will return created developer.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      400:
+        description: This user already exist!
+/api/users/:
+  get:
+    summary: List of all users
+    description: Returns all exists users
+    tags: [Users]
+    parameters:
+      - in: query
+        name: sortBy
+        schema:
+          type: string
+          enum: ["name", "role", "reviewsCount"]
+        description: Sort the users by
+      - in: query
+        name: limit
+        schema:
+          type: string
+        description: Limit the number of users returned
+      - in: query
+        name: role
+        schema:
+          type: string
+          enum: ["Admin", "Reviewer", "Moderator", "User"]
+        description: Get users by role
+    responses:
+      200:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/User"
+      401:
+        description: No authentication token provided!
+/api/users/{id}:
+  get:
+    summary: Get user by id
+    description: Returns user by his id
+    tags: [Users]
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+    responses:
+      200:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      401:
+        description: No authentication token provided!
+      400:
+        description: Wrong user id!
+/api/users/{id}/block:
+  put:
+    summary: Block user by id
+    description: Route to block other users
+    tags: [Users]
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              reason:
+                type: string
+    responses:
+      200:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      401:
+        description: No authentication token provided!
+      400:
+        description: Wrong user id!
+      "400-block":
+        description: You can't block yourself!
+      403:
+        description: You dont have permission to create new developer!
+/api/users/{id}/changeRole:
+  put:
+    summary: Block user by id
+    description: Route to change roles for other users
+    tags: [Users]
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: query
+        name: role
+        schema:
+          type: string
+          enum: ["Admin", "Moderator", "User"]
+        required: true
+        description: Get users by role
+    responses:
+      200:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      401:
+        description: No authentication token provided!
+      400:
+        description: Wrong user id!
+      403:
+        description: You dont have permission to create new developer!
