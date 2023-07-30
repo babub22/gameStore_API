@@ -191,6 +191,11 @@ describe(route, () => {
           blockedUserInDB.userStatus.blockingInfo.blockedBy._id.toHexString()
         ).toEqual(adminUserId);
       });
+      test("if user trying to block himself, it will return 400", async () => {
+        const res = await exec(adminUserId, blockingReason);
+
+        expect(res.status).toEqual(400);
+      });
     });
 
     describe("/:objectId/changeRole", () => {
