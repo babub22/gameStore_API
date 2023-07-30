@@ -4,8 +4,9 @@ const { Developer } = require("../../../models/developer");
 const getAdminToken = require("../../utils/getAdminToken");
 const createNewDeveloper = require("./utils/createNewDeveloper");
 const dbDisconnection = require("../../../setup/dbDisconnection");
+const getHexedObjectId = require("../../../utils/getHexedObjectId");
 
-const route = "/api/developers";
+const route = "/api/developers/";
 
 describe(route, () => {
   afterAll(() => {
@@ -51,10 +52,10 @@ describe(route, () => {
         expect(res.status).toBe(400);
       });
 
-      test("if request data valid, it will return 200", async () => {
+      test("if request data valid, it will return 201", async () => {
         const res = await exec(validNewDeveloper);
 
-        expect(res.status).toBe(200);
+        expect(res.status).toBe(201);
       });
 
       test("if document was created", async () => {
@@ -63,6 +64,59 @@ describe(route, () => {
         const developerInDB = await Developer.findOne(validNewDeveloper);
 
         expect(res.body._id).toBe(developerInDB._id.toHexString());
+      });
+      test("if developer already exists, it will return 409", async () => {
+        await exec(validNewDeveloper);
+        const res = await exec(validNewDeveloper);
+
+        expect(res.status).toEqual(409);
+      });
+    });
+  });
+
+  describe("PUT", () => {
+    const { token } = getAdminToken();
+
+    const changedDeveloper = {
+      name: "New developer",
+    };
+    const exec = (developerId) =>
+      request
+        .put(route + developerId)
+        .set("x-auth-token", token)
+        .send(changedDeveloper);
+
+    describe("/:developerId", () => {
+      test("if review for provided developerId doesnt exists, it will return 404", async () => {
+        const wrongReviewId = getHexedObjectId();
+
+        const res = await exec(wrongReviewId);
+        expect(res.status).toBe(404);
+      });
+
+      test("if valid request, it will return 200", async () => {
+        const { developerId } = await createNewDeveloper(token);
+
+        const res = await exec(developerId);
+        expect(res.status).toBe(200);
+      });
+
+      test("if document was updated", async () => {
+        const { developerId } = await createNewDeveloper(token);
+
+        await exec(developerId);
+
+        const updatedDeveloperInDB = await Developer.findById(developerId);
+
+        expect(updatedDeveloperInDB).toMatchObject(changedDeveloper);
+      });
+
+      test("if valid request, it will return updated document", async () => {
+        const { developerId, newDeveloper } = await createNewDeveloper(token);
+
+        const res = await exec(developerId);
+
+        expect(res.body).not.toEqual(newDeveloper);
       });
     });
   });
