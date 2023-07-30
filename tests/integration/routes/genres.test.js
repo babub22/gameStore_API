@@ -118,10 +118,57 @@ describe(route, () => {
       });
 
       test("if genre already exists, it will return 409", async () => {
-        await exec(validNewGenre,adminToken);
-        const res = await exec(validNewGenre,adminToken);
+        await exec(validNewGenre, adminToken);
+        const res = await exec(validNewGenre, adminToken);
 
         expect(res.status).toEqual(409);
+      });
+    });
+  });
+
+  describe("PUT", () => {
+    const { token } = getAdminToken();
+
+    const changedDeveloper = {
+      name: "New developer",
+    };
+    const exec = (genreId) =>
+      request
+        .put(route + genreId)
+        .set("x-auth-token", token)
+        .send(changedDeveloper);
+
+    describe("/:genreId", () => {
+      test("if review for provided genreId doesnt exists, it will return 404", async () => {
+        const wrongReviewId = getHexedObjectId();
+
+        const res = await exec(wrongReviewId);
+        expect(res.status).toBe(404);
+      });
+
+      test("if valid request, it will return 200", async () => {
+        const { genreId } = await createNewGenre(token);
+
+        const res = await exec(genreId);
+        expect(res.status).toBe(200);
+      });
+
+      test("if document was updated", async () => {
+        const { genreId } = await createNewGenre(token);
+
+        await exec(genreId);
+
+        const updatedDeveloperInDB = await Genre.findById(genreId);
+
+        expect(updatedDeveloperInDB).toMatchObject(changedDeveloper);
+      });
+
+      test("if valid request, it will return updated document", async () => {
+        const { genreId, newGenre } = await createNewGenre(token);
+
+        const res = await exec(genreId);
+
+        expect(res.body).not.toEqual(newGenre);
       });
     });
   });
@@ -135,22 +182,22 @@ describe(route, () => {
     describe("/:genreId", () => {
       test("if developer for provided genreId doesnt exists, it will return 404", async () => {
         const wrongDeveloperId = getHexedObjectId();
- 
+
         const res = await exec(wrongDeveloperId);
         expect(res.status).toBe(404);
       });
       test("if valid request, it will send 200", async () => {
         const { genreId } = await createNewGenre();
-   
+
         const res = await exec(genreId);
         expect(res.status).toBe(200);
-      }); 
+      });
       test("if valid request, it will send deleted document", async () => {
         const { genreId } = await createNewGenre();
 
         const res = await exec(genreId);
         expect(res.body._id).toEqual(genreId);
-      }); 
+      });
       test("if document was deleted", async () => {
         const { genreId } = await createNewGenre();
 
